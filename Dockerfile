@@ -7,8 +7,7 @@ COPY requirements.txt /tmp/build-base
 
 # 安装必要的环境
 RUN apk add --no-cache mysql-client mariadb-connector-c tzdata \
-    && pip install -r /tmp/build-base/requirements.txt \
-    && apk del --purge .build-deps \
+    && pip install --no-cache-dir -r /tmp/build-base/requirements.txt \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 
 # 设置时区为Asia/Shanghai, DOCKER_MODE为1

@@ -25,7 +25,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: |
-            ${{ secrets.DOCKER_USERNAME }}/PiliPili-EmbyBot
+            ${{ secrets.DOCKER_USERNAME }}/pilipili-embybot
           tags: |
             type=raw,value=${{ env.app_version }}
             type=raw,value=latest
