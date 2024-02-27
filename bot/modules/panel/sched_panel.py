@@ -1,6 +1,8 @@
 import threading
 import asyncio
 import os
+import traceback
+import json
 
 from pyrogram import filters
 from bot import bot, sakura_b, schedall, save_config, prefixes, _open, owner, LOGGER
@@ -61,11 +63,20 @@ args_dict = {
 
 
 def set_all_sche():
-    for key, value in action_dict.items():
-        if schedall[key]:
+    try:
+        schedall_str = json.dumps(data, indent=4, ensure_ascii=False, sort_keys=True)
+        print(f"计划任务: {schedall_str}")
+        for key, value in action_dict.items():
+            if not isinstance(obj, schedall) or not key in schedall:
+                continue
+            if not schedall[key]:
+                continue
             action = action_dict[key]
             args = args_dict[key]
             scheduler.add_job(action, 'cron', **args)
+    except Exception as e:
+        traceback.print_exc()
+        print(f"设置计划任务发生错误: {str(e)}")
 
 
 set_all_sche()
