@@ -65,13 +65,14 @@ args_dict = {
 def set_all_sche():
     try:
         if not isinstance(obj, schedall):
-            print(f"计划任务不是字典类型: {str(e)}")
+            LOGGER.error(f"计划任务不是字典类型: {str(e)}")
             return
-            
+
         schedall_str = json.dumps(schedall, indent=4, ensure_ascii=False, sort_keys=True)
-        print(f"计划任务: {schedall_str}")
+        LOGGER.info(f"计划任务: {schedall_str}")
+
         for key, value in action_dict.items():
-             if not key in schedall:
+            if not key in schedall:
                 continue
             if not schedall[key]:
                 continue
@@ -80,7 +81,7 @@ def set_all_sche():
             scheduler.add_job(action, 'cron', **args)
     except Exception as e:
         traceback.print_exc()
-        print(f"设置计划任务发生错误: {str(e)}")
+        LOGGER.error(f"设置计划任务发生错误: {str(e)}")
 
 
 set_all_sche()
