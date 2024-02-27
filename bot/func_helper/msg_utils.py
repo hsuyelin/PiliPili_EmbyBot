@@ -8,7 +8,7 @@ import asyncio
 from pyrogram import filters
 from pyrogram.errors import FloodWait, Forbidden, BadRequest
 from pyrogram.types import CallbackQuery
-from pyromod.listen.listen import ListenerTimeout
+from pyromod.exceptions import ListenerTimeout
 from bot import LOGGER, group, bot
 
 
