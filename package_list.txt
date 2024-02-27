@@ -1,0 +1,10 @@
+bash
+curl
+git
+mariadb-connector-c
+mysql-client
+sudo
+tzdata
+wget
+yq
+zip

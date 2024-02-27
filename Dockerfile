@@ -3,11 +3,13 @@ FROM python:3.10.11-alpine AS Builder
 
 # 将构建上下文目录中的requirements.txt 和 package_list.txt复制到新的一层的镜像内的根目录中
 RUN mkdir -p /tmp/build-base
-COPY requirements.txt /tmp/build-base
+COPY requirements.txt package_list.txt /tmp/build-base
 
 # 安装必要的环境
-RUN apk add --no-cache mysql-client mariadb-connector-c tzdata \
-    && pip install --no-cache-dir -r /tmp/build-base/requirements.txt \
+RUN apk add --no-cache --virtual .build-deps gcc musl-dev openssl-dev coreutils \
+    && apk add --no-cache $(cat /tmp/build-base/package_list.txt) \
+    && pip install -r /tmp/build-base/requirements.txt \
+    && apk del --purge .build-deps \
     && rm -rf /tmp/* /root/.cache /var/cache/apk/*
 
 # 设置时区为Asia/Shanghai, DOCKER_MODE为1
