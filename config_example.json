@@ -1,0 +1,80 @@
+{
+    "bot_name": "xxx_bot",
+    "bot_token": "6666xxxxxx:AAFkMS8Pl9CZsUutCr1yadTbrOI-xxxxxxx",
+    "owner_api": 23999502,
+    "owner_hash": "924c92df542dd56062171eebdfxxxxxx",
+    "owner": 6257203999,
+    "group": [
+        -1001959997656
+    ],
+    "main_group": "xxx-tv",
+    "chanel": "xxx-tv",
+    "bot_photo": "https://telegra.ph/file/9999f2ce38d1234f1ec9f.png",
+    "user_buy": {
+        "text": false,
+        "stat": "n",
+        "button": [
+            "💰 点击购买",
+            "https://google.com",
+            "url"
+        ]
+    },
+    "open": {
+        "stat": false,
+        "all_user": 3333,
+        "timing": 0,
+        "tem": 2482,
+        "allow_code": "y",
+        "checkin": false,
+        "exchange": false,
+        "whitelist": true,
+        "invite": true,
+        "leave_ban": false,
+        "uplays": false
+    },
+    "admins": [
+        1649994819,
+        6139996110
+    ],
+    "invite": "y",
+    "money": "P坷垃",
+    "emby_api": "21bc77f3468746a7999993aa7f877b74",
+    "emby_url": "http://202.61.999.218:8096",
+    "emby_line": "https://emby.xxxx.top:443",
+    "emby_block": [
+        "NSFW"
+    ],
+    "db_host": "202.61.999.218",
+    "db_user": "admin",
+    "db_pwd": "ntR8HAQwVDg79deZjxxx",
+    "db_name": "bilibili",
+    "tz_ad": "http://134.65.999.28:8008",
+    "tz_api": "VDrH3FmdagV5CzfdGzPIGfgdX7DUxxxx",
+    "tz_id": [
+        9,
+        17
+    ],
+    "ranks": {
+        "logo": "bilibili",
+        "backdrop": true
+    },
+    "schedall": {
+        "dayrank": true,
+        "weekrank": true,
+        "dayplayrank": true,
+        "weekplayrank": true,
+        "totalplayrank": true,
+        "check_ex": false,
+        "low_activity": false,
+        "backup_db": true,
+        "day_ranks_message_id": 0,
+        "week_ranks_message_id": 0,
+        "restart_chat_id": 0,
+        "restart_msg_id": 0
+    },
+    "extra_emby_libs": [],
+    "db_is_docker": false,
+    "db_docker_name": "mysql",
+    "db_backup_dir": "./db_backup",
+    "db_backup_maxcount": 7
+}
