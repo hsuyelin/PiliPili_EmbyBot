@@ -13,11 +13,25 @@ from bot.sql_helper.sql_emby import sql_update_emby, sql_get_emby, Emby
 
 
 async def rgs_code(_, msg):
-    try:
-        register_code = msg.text.split()[1]
-    except IndexError:
-        register_code = msg.text
-    u = register_code.split('-')[1]
+    msg_text = msg.text.strip()
+    u = None
+    if msg_text:
+        try:
+            register_code = msg_text.split()[1]
+        except IndexError:
+            register_code = msg_text
+        if '-' in register_code:
+            register_code_splits = register_code.split('-')
+            if len(register_code_splits) >= 2:
+                u = register_code.split('-')[1]
+            else:
+                return await sendMessage(msg, "⛔ **你输入了一个错误de注册码，请确认好重试。**")
+        else:
+            return await sendMessage(msg, "⛔ **你输入了一个错误de注册码，请确认好重试。**")
+    else:
+        return await sendMessage(msg, "⛔ **你输入了一个错误de注册码，请确认好重试。**")
+    if not u:
+        return await sendMessage(msg, "⛔ **你输入了一个错误de注册码，请确认好重试。**")
     if int(u) != msg.from_user.id and len(u) > 7: return await sendMessage(msg, '🤺 这不是你的专属码。')
     if _open["stat"]: return await sendMessage(msg, "🤧 自由注册开启下无法使用注册码。")
     data = sql_get_emby(tg=msg.from_user.id)
