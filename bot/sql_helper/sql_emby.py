@@ -184,7 +184,7 @@ def sql_count_emby():
             count = session.query(
                 func.count(Emby.tg).label("tg_count"),
                 func.count(Emby.embyid).label("embyid_count"),
-                func.count(case([(Emby.lv == "a", 1)])).label("lv_a_count")
+                func.count(case((Emby.lv == "a", 1))).label("lv_a_count")
             ).first()
         except:
             return None, None, None
