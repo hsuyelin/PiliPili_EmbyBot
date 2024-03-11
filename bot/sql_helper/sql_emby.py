@@ -156,33 +156,38 @@ def sql_update_emby(condition, **kwargs):
         except:
             return False
 
-def sql_change_emby(embyid, **kwargs):
+def sql_change_emby_tg(embyid, new_tg):
     """
-    更新一条emby记录，根据embyid来匹配，然后更新其他的字段
+    根据 embyid 将记录的主键值更新为新的 tg 值
 
-    :param embyid: embyid值
-    :param kwargs: 要更新的字段及其新值
+    :param embyid: 要更新的记录的 embyid
+    :param new_tg: 新的 tg 值
     :return: 更新是否成功以及可能的错误消息
     """
     with Session() as session:
         try:
-            # 根据传入的embyid值进行匹配
-            emby = session.query(Emby).filter_by(embyid=embyid).first()
-            if emby is None:
-                return False, f"未匹配到embyid为{embyid}的记录"
-            
-            # 过滤掉无效的字段
-            valid_fields = set(Emby.__table__.columns.keys())
-            valid_kwargs = {k: v for k, v in kwargs.items() if k in valid_fields}
-            
-            # 更新字段值
-            for k, v in valid_kwargs.items():
-                setattr(emby, k, v)
+            old_record = session.query(Emby).filter_by(embyid=embyid).first()
+            if old_record is None:
+                return False, f"未找到embyid为{embyid}的记录"
+
+            new_record = session.query(Emby).filter_by(tg=new_tg).first()
+            if new_record:
+                for column in Emby.__table__.columns:
+                    if column.name != 'tg':
+                        setattr(new_record, column.name, getattr(old_record, column.name))
+            else:
+                new_record = Emby(tg=new_tg, embyid=old_record.embyid, name=old_record.name, pwd=old_record.pwd,
+                                  pwd2=old_record.pwd2, lv=old_record.lv, cr=old_record.cr, ex=old_record.ex,
+                                  us=old_record.us, iv=old_record.iv, ch=old_record.ch)
+                session.add(new_record)
+
+            session.delete(old_record)
             session.commit()
-            return True, "更新成功"
+
+            return True, "TGID更新成功"
         except Exception as e:
             session.rollback()
-            return False, f"更新失败: {str(e)}"
+            return False, f"TGID更新失败: {str(e)}"
 
 
 #
