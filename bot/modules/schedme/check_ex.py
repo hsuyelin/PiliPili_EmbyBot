@@ -29,7 +29,7 @@ async def check_expired():
                     continue
             else:
                 await bot.send_message(group[0],
-                                       f'#id{r.tg} #续期账户 [{r.name}](tg://user?id={r.tg})\n续期失败，请联系闺蜜（管理）')
+                                       f'#id{r.tg} #续期账户 [{r.name}](tg://user?id={r.tg})\n续期失败，请联系管理')
         else:
             if await emby.emby_change_policy(r.embyid, method=True):
                 if sql_update_emby(Emby.tg == r.tg, lv='c'):

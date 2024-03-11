@@ -38,7 +38,7 @@ async def login_account(_, msg):
         pwd1 = await emby.emby_create(5210, name, 1234, days, 'o')
         if pwd1 == 100:
             await send.edit(
-                '**❎ 已有此账户名，请重新输入注册**\n或 ❔ __emby服务器未知错误！！！请联系闺蜜（管理）__ **会话已结束！**')
+                '**❎ 已有此账户名，请重新输入注册**\n或 ❔ __emby服务器未知错误！！！请联系管理 __ **会话已结束！**')
             LOGGER.error("未知错误，检查数据库和emby状态")
         elif pwd1 == 403:
             await send.edit('**🚫 很抱歉，注册总数已达限制**\n【admin】——>【注册状态】中可调节')

@@ -156,6 +156,34 @@ def sql_update_emby(condition, **kwargs):
         except:
             return False
 
+def sql_change_emby(embyid, **kwargs):
+    """
+    更新一条emby记录，根据embyid来匹配，然后更新其他的字段
+
+    :param embyid: embyid值
+    :param kwargs: 要更新的字段及其新值
+    :return: 更新是否成功以及可能的错误消息
+    """
+    with Session() as session:
+        try:
+            # 根据传入的embyid值进行匹配
+            emby = session.query(Emby).filter_by(embyid=embyid).first()
+            if emby is None:
+                return False, f"未匹配到embyid为{embyid}的记录"
+            
+            # 过滤掉无效的字段
+            valid_fields = set(Emby.__table__.columns.keys())
+            valid_kwargs = {k: v for k, v in kwargs.items() if k in valid_fields}
+            
+            # 更新字段值
+            for k, v in valid_kwargs.items():
+                setattr(emby, k, v)
+            session.commit()
+            return True, "更新成功"
+        except Exception as e:
+            session.rollback()
+            return False, f"更新失败: {str(e)}"
+
 
 #
 # def sql_change_emby(name, new_tg):

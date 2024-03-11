@@ -22,7 +22,7 @@ from bot.func_helper.fix_bottons import members_ikb, back_members_ikb, re_create
     store_ikb, re_store_renew, re_bindtg_ikb
 from bot.func_helper.msg_utils import callAnswer, editMessage, callListen, sendMessage
 from bot.modules.commands.exchange import rgs_code
-from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby, sql_delete_emby
+from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby, sql_delete_emby, sql_change_emby
 from bot.sql_helper.sql_emby2 import sql_get_emby2, sql_delete_emby2
 
 
@@ -255,7 +255,11 @@ async def change_tg(_, call):
                                          buttons=back_members_ikb)
 
             if sql_delete_emby(tg=call.from_user.id) is True:
-                sql_update_emby(Emby.embyid == e.embyid, tg=call.from_user.id)
+                result, msg = sql_change_emby(embyid=e.embyid, tg=call.from_user.id)
+                if not result:
+                    await editMessage(call, "🍰 **【TG改绑】数据库处理出错，请联系管理！**", back_members_ikb)
+                    LOGGER.error(f"【TG改绑】 emby账户{emby_name} 绑定错误: {msg}")
+                    return
                 await sendMessage(call,
                                   f'⭕#TG改绑 原emby账户 #{emby_name} \n\n已绑定至 [{call.from_user.first_name}](tg://user?id={call.from_user.id}) - {call.from_user.id}',
                                   send=True)
@@ -263,7 +267,7 @@ async def change_tg(_, call):
                     f'【TG改绑】 emby账户 {emby_name} 绑定至 {call.from_user.first_name}-{call.from_user.id}')
                 await editMessage(call, text)
             else:
-                await editMessage(call, "🍰 **【TG改绑】数据库处理出错，请联系闺蜜（管理）！**", back_members_ikb)
+                await editMessage(call, "🍰 **【TG改绑】数据库处理出错，请联系管理！**", back_members_ikb)
                 LOGGER.error(f"【TG改绑】 emby账户{emby_name} 绑定未知错误。")
 
 
