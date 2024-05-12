@@ -110,9 +110,9 @@ def manga_ikb(manga_id=None) -> InlineKeyboardMarkup:
     if manga_id and isinstance(manga_id, str):
         return ikb(
             [[('🗑️ 删除账号', 'manga_delme'), ('⭕ 重置密码', 'manga_reset')],
-             [('💫 用户主页', 'members')]])
+             [('🔙 返回', 'manga')]])
     else:
-        return ikb([[('👑 创建账户', 'manga_create')], [('💫 用户主页', 'members')]])
+        return ikb([[('👑 创建账户', 'manga_create')], [('🔙 返回', 'manga')]])
 
 
 def del_me_manga_ikb(manga_id) -> InlineKeyboardMarkup:

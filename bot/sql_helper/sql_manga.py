@@ -24,7 +24,7 @@ def sql_add_manga(manga_info):
             if not isinstance(manga_info, Manga):
                 return
             condition = or_(Manga.embyid == manga_info.embyid, Manga.manga_id == manga_info.manga_id)
-            manga = session.query(Manga).filter(condition).one()
+            manga = session.query(Manga).filter(condition).first()
             if manga:
                 return
             session.add(manga_info)
@@ -57,7 +57,7 @@ def sql_update_manga_password(embyid, manga_id, pwd):
         """
     with Session() as session:
         try:
-            manga = session.query(Manga).filter(or_(Manga.embyid == embyid, Manga.manga_id == manga_id)).one()
+            manga = session.query(Manga).filter(or_(Manga.embyid == embyid, Manga.manga_id == manga_id)).first()
             if pwd is None:
                 return False
             manga.pwd = pwd
@@ -73,7 +73,7 @@ def sql_get_manga(embyid, manga_id=None):
     """
     with Session() as session:
         try:
-            manga = session.query(Manga).filter(or_(Manga.embyid == embyid, Manga.manga_id == manga_id)).one()
+            manga = session.query(Manga).filter(or_(Manga.embyid == embyid, Manga.manga_id == manga_id)).first()
             return manga
         except:
             return None

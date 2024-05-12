@@ -647,7 +647,7 @@ async def manga(_, call):
         text += f"**· 💠 账号** | `{manga_account}`\n" \
                 f"**· 🚨 密码** | `{manga_pwd}`"
     else:
-        text += f"**· 未创建漫画服账号\n"
+        text += f"\n**· 未创建漫画服账号\n"
     await editMessage(call, text, manga_ikb(manga_id=manga_id))
 
 
@@ -658,7 +658,7 @@ async def manga_create(_, call):
         return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
 
     manga_info = sql_get_manga(embyid=emby_info.embyid)
-    if manga_info.manga_id:
+    if manga_info and manga_info.manga_id and isinstance(manga_info.manga_id, str):
         await callAnswer(call, '💦 你已经有账户啦！请勿重复注册。', True)
     else:
         await create_manga_user(_, call, emby_info.embyid)
