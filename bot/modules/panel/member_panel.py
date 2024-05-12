@@ -636,12 +636,19 @@ async def manga(_, call):
         manga_info = sql_get_manga(embyid=emby.embyid)
 
     await callAnswer(call, f"✅ 漫画自助服务界面")
+    emby_name = emby.name if emby and isinstance(emby, Emby) else None
+    manga_id = manga_info.manga_id if manga_info and isinstance(manga_info, Manga) else None
+    manga_account = manga_info.name if manga_info and isinstance(manga_info, Manga) else None
+    manga_pwd = manga_info.pwd if manga_info and isinstance(manga_info, Manga) else None
     text = f"▎__欢迎进入漫画自助服务面板！{call.from_user.first_name}__\n\n" \
            f"**· 🆔 用户ID** | `{call.from_user.id}`\n" \
-           f"**· 🍒 Emby** | `{emby.name}`\n" \
-           f"**· 💠 账号** | `{manga_info.name}`\n" \
-           f"**· 🚨 密码** | `{manga_info.pwd}`"
-    await editMessage(call, text, manga_ikb(manga_id=manga_info.manga_id))
+           f"**· 🍒 Emby** | `{emby_name}`\n"
+    if manga_account and manga_pwd:
+        text += f"**· 💠 账号** | `{manga_account}`\n" \
+                f"**· 🚨 密码** | `{manga_pwd}`"
+    else:
+        text += f"**· 未创建漫画服账号\n"
+    await editMessage(call, text, manga_ikb(manga_id=manga_id))
 
 
 @bot.on_callback_query(filters.regex('manga_create') & user_in_group_on_filter)
