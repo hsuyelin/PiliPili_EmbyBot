@@ -672,7 +672,7 @@ async def manga_account_obtain(_, call):
 async def create_manga_user(_, call, embyid):
     same = await editMessage(call,
                              text='🤖**注意：您已进入注册状态:\n\n• 请在2min内输入 `[邮箱][空格][密码]`\n• 举个例子🌰：`test@qq.com 123456`**\n\n• '
-                                  '\n• 邮箱不要求真实邮箱，只是作为登录使用，不与其他用户重复即可；退出请点 /cancel')
+                                  '\n• 邮箱不要求真实邮箱，只是作为登录使用，不与其他用户重复即可，密码需要至少为6位密码；退出请点 /cancel')
     if same is False:
         return
 
@@ -690,9 +690,11 @@ async def create_manga_user(_, call, embyid):
             pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
             match = re.match(pattern, manga_email)
             if not match:
-                await editMessage(call, f'⚠️ 输入用户名格式错误\n【`{manga_email}`】\n **会话已结束！**', re_create_ikb)
+                await editMessage(call, f'⚠️ 输入用户名格式错误\n【`{manga_email}`】\n **会话已结束！**', re_create_manga_ikb)
+            if len(manga_pwd) < 6:
+                await editMessage(call, f'⚠️ 输入密码至少为6位\n【`{manga_email}`】\n **会话已结束！**', re_create_manga_ikb)
         except (IndexError, ValueError):
-            await editMessage(call, f'⚠️ 输入格式错误\n【`{txt.text}`】\n **会话已结束！**', re_create_ikb)
+            await editMessage(call, f'⚠️ 输入格式错误\n【`{txt.text}`】\n **会话已结束！**', re_create_manga_ikb)
         else:
             await editMessage(call,
                               f'🆗 会话结束，收到设置\n\n用户名：**{manga_email}**  密码：**{manga_pwd}** \n\n__正在为您初始化账户_......')
