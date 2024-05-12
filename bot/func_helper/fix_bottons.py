@@ -59,11 +59,11 @@ def members_ikb(emby=False) -> InlineKeyboardMarkup:
     if emby is True:
         if user_buy["stat"] == "y":
             return ikb([[('🏪 兑换商店', 'storeall'), ('🗑️ 删除账号', 'delme')],
-                        [('🎬 显示/隐藏', 'embyblock'), ('⭕ 重置密码', 'reset')],
-                        [('♻️ 主界面', 'back_start')]])
+                        [('🎬 显示/隐藏', 'embyblock'), ('📚 漫画服务', 'manga')],
+                        [('⭕ 重置密码', 'reset'), ('♻️ 主界面', 'back_start')]])
         else:
             return ikb([[('🗑️ 删除账号', 'delme'), ('🎬 显示/隐藏', 'embyblock')],
-                        [('⭕ 重置密码', 'reset')],
+                        [('⭕ 重置密码', 'reset'), ('📚 漫画服务', 'manga')],
                         [('♻️ 主界面', 'back_start')]])
     else:
         return ikb(
@@ -79,6 +79,10 @@ re_bindtg_ikb = ikb([[('✨ 绑定TG', 'bindtg'), ('💫 用户主页', 'members
 re_delme_ikb = ikb([[('♻️ 重试', 'delme')], [('🔙 返回', 'members')]])
 re_reset_ikb = ikb([[('♻️ 重试', 'reset')], [('🔙 返回', 'members')]])
 re_exchange_b_ikb = ikb([[('♻️ 重试', 'exchange')], [('🔙 返回', 'members')]])
+back_manga_ikb = ikb([[('💨 返回', 'manga')]])
+re_create_manga_ikb = ikb([[('🍥 重新输入', 'manga_create'), ('🔙 返回', 'manga')]])
+re_delme_manga_ikb = ikb([[('♻️ 重试', 'manga_delme')], [('🔙 返回', 'manga')]])
+re_reset_manga_ikb = ikb([[('♻️ 重试', 'manga_reset')], [('🔙 返回', 'manga')]])
 
 
 def store_ikb():
@@ -100,6 +104,20 @@ def emby_block_ikb(embyid) -> InlineKeyboardMarkup:
 
 user_emby_block_ikb = ikb([[('✅ 已隐藏', 'members')]])
 user_emby_unblock_ikb = ikb([[('❎ 已显示', 'members')]])
+
+
+def manga_ikb(manga_id=None) -> InlineKeyboardMarkup:
+    if manga_id and isinstance(manga_id, str):
+        return ikb(
+            [[('🗑️ 删除账号', 'manga_delme'), ('⭕ 重置密码', 'manga_reset')],
+             [('💫 用户主页', 'members')]])
+    else:
+        return ikb([[('👑 创建账户', 'manga_create')], [('💫 用户主页', 'members')]])
+
+
+def del_me_manga_ikb(manga_id) -> InlineKeyboardMarkup:
+    return ikb([[('🎯 确定', f'delmanga-{manga_id}')], [('🔙 取消', 'manga')]])
+
 
 """server ↓"""
 

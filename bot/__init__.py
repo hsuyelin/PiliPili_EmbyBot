@@ -118,6 +118,9 @@ except Exception as e:
     config["extra_emby_libs"] = extra_emby_libs
     save_config()
     # print('没有读取到额外媒体库配置，使用默认值', extra_emby_libs)
+# manga设置
+manga_url = config["manga_url"]
+manga_authorization = config["manga_authorization"]
 # 数据库
 db_host = config["db_host"]
 db_user = config["db_user"]

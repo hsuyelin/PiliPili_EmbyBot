@@ -8,22 +8,26 @@
 import asyncio
 import datetime
 import random
+import re
 from datetime import timedelta, datetime
 
 from pyrogram.errors import BadRequest
 
-from bot import bot, LOGGER, _open, emby_line, sakura_b, ranks, config, group, extra_emby_libs, emby_block
+from bot import bot, LOGGER, _open, emby_line, sakura_b, ranks, config, group, extra_emby_libs, emby_block, manga_url
 from pyrogram import filters
 from bot.func_helper.emby import emby
+from bot.func_helper.manga import manga
 from bot.func_helper.filters import user_in_group_on_filter
 from bot.func_helper.utils import members_info, tem_alluser, wh_msg
 from bot.func_helper.fix_bottons import members_ikb, back_members_ikb, re_create_ikb, del_me_ikb, re_delme_ikb, \
     re_reset_ikb, re_changetg_ikb, emby_block_ikb, user_emby_block_ikb, user_emby_unblock_ikb, re_exchange_b_ikb, \
-    store_ikb, re_store_renew, re_bindtg_ikb
+    store_ikb, re_store_renew, re_bindtg_ikb, manga_ikb, back_manga_ikb, re_create_manga_ikb, re_delme_manga_ikb, \
+    del_me_manga_ikb, re_reset_manga_ikb
 from bot.func_helper.msg_utils import callAnswer, editMessage, callListen, sendMessage
 from bot.modules.commands.exchange import rgs_code
 from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby, sql_delete_emby, sql_change_emby_tg
 from bot.sql_helper.sql_emby2 import sql_get_emby2, sql_delete_emby2
+from bot.sql_helper.sql_manga import Manga, sql_add_manga, sql_delete_manga, sql_update_manga_password, sql_get_manga
 
 
 # 创号函数
@@ -622,3 +626,184 @@ async def do_store_invite(_, call):
 @bot.on_callback_query(filters.regex('store-query') & user_in_group_on_filter)
 async def do_store_query(_, call):
     await callAnswer(call, '❌ 管理员未开启此兑换，等待编写', True)
+
+
+@bot.on_callback_query(filters.regex('manga') & user_in_group_on_filter)
+async def manga(_, call):
+    emby = sql_get_emby(tg=call.from_user.id)
+    manga_info = None
+    if emby and emby.embyid:
+        manga_info = sql_get_manga(embyid=emby.embyid)
+
+    await callAnswer(call, f"✅ 漫画自助服务界面")
+    text = f"▎__欢迎进入漫画自助服务面板！{call.from_user.first_name}__\n\n" \
+           f"**· 🆔 用户ID** | `{call.from_user.id}`\n" \
+           f"**· 🍒 Emby** | `{emby.name}`\n" \
+           f"**· 💠 账号** | `{manga_info.name}`\n" \
+           f"**· 🚨 密码** | `{manga_info.pwd}`"
+    await editMessage(call, text, manga_ikb(manga_id=manga_info.manga_id))
+
+
+@bot.on_callback_query(filters.regex('manga_create') & user_in_group_on_filter)
+async def manga_create(_, call):
+    emby_info = sql_get_emby(tg=call.from_user.id)
+    if not emby_info:
+        return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
+
+    manga_info = sql_get_manga(embyid=emby_info.embyid)
+    if manga_info.manga_id:
+        await callAnswer(call, '💦 你已经有账户啦！请勿重复注册。', True)
+    else:
+        await create_manga_user(_, call, emby_info.embyid)
+
+
+async def create_manga_user(_, call, embyid):
+    same = await editMessage(call,
+                             text='🤖**注意：您已进入注册状态:\n\n• 请在2min内输入 `[邮箱][空格][密码]`\n• 举个例子🌰：`test@qq.com 123456`**\n\n• '
+                                  '\n• 邮箱不要求真实邮箱，只是作为登录使用，不与其他用户重复即可；退出请点 /cancel')
+    if same is False:
+        return
+
+    txt = await callListen(call, 120, buttons=back_manga_ikb)
+    if isinstance(txt, bool):
+        return
+
+    elif txt.text == '/cancel':
+        return await asyncio.gather(txt.delete(),
+                                    editMessage(call, '__您已经取消输入__ **会话已结束！**', back_manga_ikb))
+    else:
+        try:
+            await txt.delete()
+            manga_email, manga_pwd = txt.text.split()
+            pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+            match = re.match(pattern, manga_email)
+            if not match:
+                await editMessage(call, f'⚠️ 输入用户名格式错误\n【`{manga_email}`】\n **会话已结束！**', re_create_ikb)
+        except (IndexError, ValueError):
+            await editMessage(call, f'⚠️ 输入格式错误\n【`{txt.text}`】\n **会话已结束！**', re_create_ikb)
+        else:
+            await editMessage(call,
+                              f'🆗 会话结束，收到设置\n\n用户名：**{manga_email}**  密码：**{manga_pwd}** \n\n__正在为您初始化账户_......')
+            await asyncio.sleep(1)
+
+            # manga api操作
+            manga_info = await manga.manga_create(embyid=embyid, email=manga_email, pwd=manga_pwd)
+            if isinstance(manga_info, Manga) and manga_info:
+                await editMessage(call,
+                                  f'**▎创建用户成功🎉**\n\n'
+                                  f'· 账号 | `{manga_email}`\n'
+                                  f'· 密码 | `{manga_pwd}`\n'
+                                  f'· 当前线路：\n'
+                                  f'{manga_url}\n\n'
+                                  f'**·【服务器】 - 查看线路和密码**')
+                LOGGER.info(f"【创建漫画服账户】：{call.from_user.id} - 建立了 {manga_email} ")
+            elif isinstance(manga_info, int) and manga_info == 403:
+                await editMessage(call, '**🚫 很抱歉，该用户名已经被使用。**', back_manga_ikb)
+            else:
+                await editMessage(call, '**- ❎ emby服务器连接不通，会话已结束！**', re_create_manga_ikb)
+
+
+@bot.on_callback_query(filters.regex('manga_delme') & user_in_group_on_filter)
+async def manga_delme(_, call):
+    emby_info = sql_get_emby(tg=call.from_user.id)
+    if emby_info is None:
+        return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
+
+    manga_info = sql_get_manga(embyid=emby_info.embyid)
+    if not manga_info or not manga_info.manga_id:
+        return await callAnswer(call, '未查询到账户，不许乱点！💢', True)
+
+    edt = await editMessage(call, '**🔰账户安全验证**：\n\n👮🏻验证是否本人进行敏感操作，请对我发送您设置的漫画服密码。倒计时 120s\n'
+                                  '🛑 **停止请点 /cancel**')
+    if edt is False:
+        return
+
+    m = await callListen(call, 120)
+    if isinstance(m, bool):
+        return
+    elif m.text == '/cancel':
+        await m.delete()
+        await editMessage(call, '__您已经取消输入__ **会话已结束！**', buttons=back_manga_ikb)
+    else:
+        if m.text == manga_info.pwd:
+            await editMessage(call, '**⚠️ 删除漫画服账号将会丢失所有活动记录。\n**',
+                              buttons=del_me_manga_ikb(manga_info.manga_id))
+        else:
+            await m.delete()
+            await editMessage(call, '**💢 验证不通过，漫画服密码与服务器保存的密码不匹配。**', re_delme_manga_ikb)
+
+
+@bot.on_callback_query(filters.regex('delmanga') & user_in_group_on_filter)
+async def delmanga(_, call):
+    send = await callAnswer(call, "🎯 get，正在删除ing。。。")
+    if send is False:
+        return
+
+    manga_id = call.data.split('-')[1]
+    if await manga.manga_del(manga_id):
+        send1 = await editMessage(call, '🗑️ 好了，已经为您删除...\n愿来日各自安好，山高水长，我们有缘再见！',
+                                  buttons=back_manga_ikb)
+        if send1 is False:
+            return
+
+        LOGGER.info(f"【删除漫画服账号】：{call.from_user.id} 已删除！")
+    else:
+        await editMessage(call, '🥧 蛋糕辣~ 好像哪里出问题了，请向管理反应', buttons=back_manga_ikb)
+        LOGGER.error(f"【删除漫画服账号】：{call.from_user.id} 失败！")
+
+
+@bot.on_callback_query(filters.regex('manga_reset') & user_in_group_on_filter)
+async def manga_reset(_, call):
+    emby_info = sql_get_emby(tg=call.from_user.id)
+    if emby_info is None:
+        return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
+
+    manga_info = sql_get_manga(embyid=emby_info.embyid)
+    if not manga_info or not manga_info.manga_id:
+        return await callAnswer(call, '未查询到账户，不许乱点！💢', True)
+    else:
+        await callAnswer(call, "🔴 请先进行 原密码 验证")
+        send = await editMessage(call, '**🔰账户安全验证**：\n\n 👮🏻验证是否本人进行敏感操作，请对我发送您上次设置的密码。倒计时 120 s\n'
+                                       '🛑 **停止请点 /cancel**')
+        if send is False:
+            return
+
+        m = await callListen(call, 120, buttons=back_manga_ikb)
+        if isinstance(m, bool):
+            return
+
+        elif m.text == '/cancel':
+            await m.delete()
+            await editMessage(call, '__您已经取消输入__ **会话已结束！**', buttons=back_manga_ikb)
+        else:
+            if m.text != manga_info.pwd:
+                await m.delete()
+                await editMessage(call, f'**💢 验证不通过，{m.text} 旧密码错误。**', buttons=re_reset_manga_ikb)
+            else:
+                await m.delete()
+                await editMessage(call, '🎯 请在 120s内 输入你要更新的密码, 仅支持英文字母和数字的组合。\n\n'
+                                        '点击 /cancel 将重置为123456并退出。 无更改退出状态请等待120s')
+                mima = await callListen(call, 120, buttons=back_manga_ikb)
+                if isinstance(mima, bool):
+                    return
+
+                elif mima.text == '/cancel':
+                    await mima.delete()
+                    await editMessage(call, '**🎯 收到，正在重置ing。。。**')
+                    if await manga.manga_reset(manga_info, '123456') is True:
+                        await editMessage(call, '🕶️ 操作完成！已为您重置密码为 123456。', buttons=back_manga_ikb)
+                        LOGGER.info(f"【重置漫画服密码】：{call.from_user.id} 成功重置了123456密码！")
+                    else:
+                        await editMessage(call, '🫥 重置密码操作失败！请联系管理员。')
+                        LOGGER.error(f"【重置漫画服密码】：{call.from_user.id} 重置密码失败 ！")
+
+                else:
+                    await mima.delete()
+                    await editMessage(call, '**🎯 收到，正在重置ing。。。**')
+                    if await manga.manga_reset(manga_info, mima.text)  is True:
+                        await editMessage(call, f'🕶️ 操作完成！已为您重置密码为 `{mima.text}`。',
+                                          buttons=back_manga_ikb)
+                        LOGGER.info(f"【重置漫画服密码】：{call.from_user.id} 成功重置了密码为 {mima.text} ！")
+                    else:
+                        await editMessage(call, '🫥 操作失败！请联系管理员。', buttons=back_manga_ikb)
+                        LOGGER.error(f"【重置漫画服密码】：{call.from_user.id} 重置密码失败 ！")
