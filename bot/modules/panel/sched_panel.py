@@ -65,7 +65,7 @@ args_dict = {
 def set_all_sche():
     try:
         if not isinstance(schedall, dict):
-            LOGGER.error(f"计划任务不是字典类型: {str(e)}")
+            LOGGER.error(f"计划任务不是字典类型")
             return
 
         schedall_str = json.dumps(schedall, indent=4, ensure_ascii=False, sort_keys=True)

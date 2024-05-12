@@ -651,8 +651,8 @@ async def manga(_, call):
     await editMessage(call, text, manga_ikb(manga_id=manga_id))
 
 
-@bot.on_callback_query(filters.regex('manga_create') & user_in_group_on_filter)
-async def manga_create(_, call):
+@bot.on_callback_query(filters.regex('manga_account_obtain') & user_in_group_on_filter)
+async def manga_account_obtain(_, call):
     emby_info = sql_get_emby(tg=call.from_user.id)
     if not emby_info:
         return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
@@ -710,8 +710,8 @@ async def create_manga_user(_, call, embyid):
                 await editMessage(call, '**- ❎ emby服务器连接不通，会话已结束！**', re_create_manga_ikb)
 
 
-@bot.on_callback_query(filters.regex('manga_delme') & user_in_group_on_filter)
-async def manga_delme(_, call):
+@bot.on_callback_query(filters.regex('manga_account_remove') & user_in_group_on_filter)
+async def manga_account_remove(_, call):
     emby_info = sql_get_emby(tg=call.from_user.id)
     if emby_info is None:
         return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
@@ -759,8 +759,8 @@ async def delmanga(_, call):
         LOGGER.error(f"【删除漫画服账号】：{call.from_user.id} 失败！")
 
 
-@bot.on_callback_query(filters.regex('manga_reset') & user_in_group_on_filter)
-async def manga_reset(_, call):
+@bot.on_callback_query(filters.regex('manga_password_update') & user_in_group_on_filter)
+async def manga_password_update(_, call):
     emby_info = sql_get_emby(tg=call.from_user.id)
     if emby_info is None:
         return await callAnswer(call, '⚠️ 数据库没有你，请先创建Emby账号', True)
