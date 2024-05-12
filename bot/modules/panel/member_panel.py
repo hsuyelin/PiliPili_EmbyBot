@@ -803,6 +803,7 @@ async def manga_password_update(_, call):
                     await mima.delete()
                     await editMessage(call, '**🎯 收到，正在重置ing。。。**')
                     if await manga.manga_reset(manga_info, '123456') is True:
+                        sql_update_manga_password(embyid=emby_info.embyid, manga_id=manga_info.manga_id, pwd='123456')
                         await editMessage(call, '🕶️ 操作完成！已为您重置密码为 123456。', buttons=back_manga_ikb)
                         LOGGER.info(f"【重置漫画服密码】：{call.from_user.id} 成功重置了123456密码！")
                     else:
@@ -812,7 +813,8 @@ async def manga_password_update(_, call):
                 else:
                     await mima.delete()
                     await editMessage(call, '**🎯 收到，正在重置ing。。。**')
-                    if await manga.manga_reset(manga_info, mima.text)  is True:
+                    if await manga.manga_reset(manga_info, mima.text) is True:
+                        sql_update_manga_password(embyid=emby_info.embyid, manga_id=manga_info.manga_id, pwd=mima.text)
                         await editMessage(call, f'🕶️ 操作完成！已为您重置密码为 `{mima.text}`。',
                                           buttons=back_manga_ikb)
                         LOGGER.info(f"【重置漫画服密码】：{call.from_user.id} 成功重置了密码为 {mima.text} ！")
