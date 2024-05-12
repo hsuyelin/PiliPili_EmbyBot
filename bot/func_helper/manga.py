@@ -65,7 +65,7 @@ class MangaService:
         if not manga_info or not isinstance(manga_info, Manga) or not new_pwd or not isinstance(new_pwd, str):
             return False
 
-        authorization = 'Basic ' + b64encode(f'{manga_info.name}:{manga_info.pwd}'.encode('utf-8'))
+        authorization = 'Basic ' + b64encode(f'{manga_info.name}:{manga_info.pwd}'.encode('utf-8')).decode()
         headers = self.headers.copy()
         headers['Authorization'] = authorization
         parameter = {
