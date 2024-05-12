@@ -379,6 +379,11 @@ async def del_emby(_, call):
         return
 
     embyid = call.data.split('-')[1]
+    manga_info = sql_get_manga(embyid)
+    if manga_info:
+        await manga.manga_del(manga_info.manga_id)
+        await asyncio.sleep(1)
+
     if await emby.emby_del(embyid):
         send1 = await editMessage(call, '🗑️ 好了，已经为您删除...\n愿来日各自安好，山高水长，我们有缘再见！',
                                   buttons=back_members_ikb)
@@ -628,8 +633,8 @@ async def do_store_query(_, call):
     await callAnswer(call, '❌ 管理员未开启此兑换，等待编写', True)
 
 
-@bot.on_callback_query(filters.regex('manga') & user_in_group_on_filter)
-async def manga(_, call):
+@bot.on_callback_query(filters.regex('manga_panel') & user_in_group_on_filter)
+async def manga_panel(_, call):
     emby = sql_get_emby(tg=call.from_user.id)
     manga_info = None
     if emby and emby.embyid:

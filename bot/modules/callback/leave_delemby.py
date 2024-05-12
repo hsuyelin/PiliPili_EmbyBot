@@ -1,10 +1,13 @@
+import asyncio
 from pyrogram import filters
 from pyrogram.enums import ChatMemberStatus
 from pyrogram.types import ChatMemberUpdated
 
 from bot import bot, group, LOGGER, _open
 from bot.sql_helper.sql_emby import sql_get_emby
+from bot.sql_helper.sql_manga import sql_get_manga
 from bot.func_helper.emby import emby
+from bot.func_helper.manga import manga
 
 
 @bot.on_chat_member_updated(filters.chat(group))
@@ -17,6 +20,11 @@ async def leave_del_emby(_, event: ChatMemberUpdated):
                 e = sql_get_emby(tg=user_id)
                 if e is None or e.embyid is None:
                     return
+                manga_info = sql_get_manga(e.embyid)
+                if manga_info:
+                    await manga.manga_del(manga_info.manga_id)
+                    await asyncio.sleep(1)
+
                 if await emby.emby_del(id=e.embyid):
                     LOGGER.info(
                         f'【退群删号】- {user_fname}-{user_id} 已经离开了群组，咕噜噜，ta的账户被吃掉啦！')
@@ -42,6 +50,12 @@ async def leave_del_emby(_, event: ChatMemberUpdated):
                 e = sql_get_emby(tg=user_id)
                 if e is None or e.embyid is None:
                     return
+
+                manga_info = sql_get_manga(e.embyid)
+                if manga_info:
+                    await manga.manga_del(manga_info.manga_id)
+                    await asyncio.sleep(1)
+
                 if await emby.emby_del(id=e.embyid):
                     LOGGER.info(
                         f'【退群删号】- {user_fname}-{user_id} 已经离开了群组，咕噜噜，ta的账户被吃掉啦！')
