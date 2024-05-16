@@ -281,13 +281,12 @@ class Embyservice:
 
     async def emby_cust_commit(self, user_id=None, days=7, method=None):
         _url = f'{self.url}/emby/user_usage_stats/submit_custom_query'
-        sub_time = datetime.now(timezone(timedelta(hours=8)))
-        start_time = (sub_time - timedelta(days=days)).strftime("%Y-%m-%d %H:%M:%S")
-        end_time = sub_time.strftime("%Y-%m-%d %H:%M:%S")
+        start_time = '2000-01-01 00:00:00'
+        end_time = datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d %H:%M:%S")
         sql = ''
         if method == 'sp':
             sql += "SELECT UserId, SUM(PlayDuration - PauseDuration) AS WatchTime FROM PlaybackActivity "
-            sql += f"WHERE DateCreated >= '{start_time}' AND DateCreated < '{end_time}' GROUP BY UserId ORDER BY WatchTime DESC LIMIT 10"
+            sql += f"WHERE DateCreated >= '{start_time}' AND DateCreated < '{end_time}' GROUP BY UserId ORDER BY WatchTime DESC"
         elif user_id != 'None':
             sql += "SELECT MAX(DateCreated) AS LastLogin,SUM(PlayDuration - PauseDuration) / 60 AS WatchTime FROM PlaybackActivity "
             sql += f"WHERE UserId = '{user_id}' AND DateCreated >= '{start_time}' AND DateCreated < '{end_time}' GROUP BY UserId"
@@ -296,6 +295,23 @@ class Embyservice:
         resp = r.post(_url, headers=self.headers, json=data, timeout=30)
         if resp.status_code == 200:
             # print(resp.json())
+            rst = resp.json()["results"]
+            return rst
+        else:
+            return None
+
+    async def emby_1th_anniversary_check(self, user_id=None):
+        if not user_id:
+            return None
+        _url = f'{self.url}/emby/user_usage_stats/submit_custom_query'
+        start_time = '2000-01-01 00:00:00'
+        end_time = '2024-05-12 23:59:00'
+        sql = ''
+        sql += "SELECT MAX(DateCreated) AS LastLogin,SUM(PlayDuration - PauseDuration) / 60 AS WatchTime FROM PlaybackActivity "
+        sql += f"WHERE UserId = '{user_id}' AND DateCreated >= '{start_time}' AND DateCreated < '{end_time}' GROUP BY UserId"
+        data = {"CustomQueryString": sql, "ReplaceUserId": True}  # user_name
+        resp = r.post(_url, headers=self.headers, json=data, timeout=30)
+        if resp.status_code == 200:
             rst = resp.json()["results"]
             return rst
         else:
