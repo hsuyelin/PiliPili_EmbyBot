@@ -636,7 +636,7 @@ async def do_store_invite(_, call):
         await editMessage(call,
                           f'🎟️ 请回复创建 [数量] [模式]\n\n'
                           f'**模式**： link -深链接 | code -码\n'
-                          f'**示例**：`1 code` 记作 1条 季度注册码\n'
+                          f'**示例**：`1 code` 记作 1条 注册码\n'
                           f'**注意**：兑率 = {_open["invite_cost"]}{sakura_b}\n'
                           f'__取消本次操作，请 /cancel__')
         content = await callListen(call, 120)
