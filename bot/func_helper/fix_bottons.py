@@ -56,15 +56,27 @@ def members_ikb(emby=False) -> InlineKeyboardMarkup:
     :param emby:
     :return:
     """
+    # if emby is True:
+    #     if user_buy["stat"] == "y":
+    #         return ikb([[('🏪 兑换商店', 'storeall'), ('🗑️ 删除账号', 'delme')],
+    #                     [('🎬 显示/隐藏', 'embyblock'), ('📚 漫画服务', 'manga_panel')],
+    #                     [('⭕ 重置密码', 'reset'), ('♻️ 主界面', 'back_start')]])
+    #     else:
+    #         return ikb([[('🗑️ 删除账号', 'delme'), ('🎬 显示/隐藏', 'embyblock')],
+    #                     [('⭕ 重置密码', 'reset'), ('📚 漫画服务', 'manga_panel')],
+    #                     [('♻️ 主界面', 'back_start')]])
+    # else:
+    #     return ikb(
+    #         [[('👑 创建账户', 'create')], [('⭕ 换绑TG', 'changetg'), ('🔍 绑定TG', 'bindtg')],
+    #          [('♻️ 主界面', 'back_start')]])
     if emby is True:
         if user_buy["stat"] == "y":
             return ikb([[('🏪 兑换商店', 'storeall'), ('🗑️ 删除账号', 'delme')],
-                        [('🎬 显示/隐藏', 'embyblock'), ('📚 漫画服务', 'manga_panel')],
-                        [('⭕ 重置密码', 'reset'), ('♻️ 主界面', 'back_start')]])
+                        [('🎬 显示/隐藏', 'embyblock'), ('⭕ 重置密码', 'reset')],
+                        [('♻️ 主界面', 'back_start')]])
         else:
             return ikb([[('🗑️ 删除账号', 'delme'), ('🎬 显示/隐藏', 'embyblock')],
-                        [('⭕ 重置密码', 'reset'), ('📚 漫画服务', 'manga_panel')],
-                        [('♻️ 主界面', 'back_start')]])
+                        [('⭕ 重置密码', 'reset'), ('♻️ 主界面', 'back_start')]])
     else:
         return ikb(
             [[('👑 创建账户', 'create')], [('⭕ 换绑TG', 'changetg'), ('🔍 绑定TG', 'bindtg')],
