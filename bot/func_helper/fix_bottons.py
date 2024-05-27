@@ -21,7 +21,7 @@ def judge_start_ikb(uid: int) -> InlineKeyboardMarkup:
     d = [['️👥 用户功能', 'members'], ['🌐 服务器', 'server'], ['🎟️ 使用注册码', 'exchange']]  # ['🏪 商店', 'store_all']
     if _open["checkin"]:
         d.append([f'🎯 签到', 'checkin'])
-    if user_buy["stat"] == "y":
+    if user_buy["stat"] == True:
         d.append(user_buy["button"])
     lines = array_chunk(d, 2)
     if judge_admins(uid):
@@ -57,7 +57,7 @@ def members_ikb(emby=False) -> InlineKeyboardMarkup:
     :return:
     """
     # if emby is True:
-    #     if user_buy["stat"] == "y":
+    #     if user_buy["stat"] == True:
     #         return ikb([[('🏪 兑换商店', 'storeall'), ('🗑️ 删除账号', 'delme')],
     #                     [('🎬 显示/隐藏', 'embyblock'), ('📚 漫画服务', 'manga_panel')],
     #                     [('⭕ 重置密码', 'reset'), ('♻️ 主界面', 'back_start')]])
@@ -70,7 +70,7 @@ def members_ikb(emby=False) -> InlineKeyboardMarkup:
     #         [[('👑 创建账户', 'create')], [('⭕ 换绑TG', 'changetg'), ('🔍 绑定TG', 'bindtg')],
     #          [('♻️ 主界面', 'back_start')]])
     if emby is True:
-        if user_buy["stat"] == "y":
+        if user_buy["stat"] == True:
             return ikb([[('🏪 兑换商店', 'storeall'), ('🗑️ 删除账号', 'delme')],
                         [('🎬 显示/隐藏', 'embyblock'), ('⭕ 重置密码', 'reset')],
                         [('♻️ 主界面', 'back_start')]])
@@ -157,7 +157,7 @@ async def cr_page_server():
 gm_ikb_content = ikb([[('⭕ 注册状态', 'open-menu'), ('🎟️ 生成注册', 'cr_link')],
                           [('💊 查询注册', 'ch_link'), ('🌏 定时', 'schedall')],
                           [('🕹️ 主界面', 'back_start'), ('其他 🪟', 'back_config')]])
-if user_buy["stat"] == "y":
+if user_buy["stat"] == True:
     gm_ikb_content = ikb([[('⭕ 注册状态', 'open-menu'), ('🎟️ 生成注册', 'cr_link')],
                       [('💊 查询注册', 'ch_link'), ('🏬 兑换设置', 'set_renew')],
                       [('🌏 定时', 'schedall'), ('🕹️ 主界面', 'back_start'), ('其他 🪟', 'back_config')]])
@@ -214,12 +214,12 @@ def cr_renew_ikb():
 
 
 def config_preparation() -> InlineKeyboardMarkup:
-    code = '✅' if _open["allow_code"] == 'y' else '❎'
-    buy_stat = '✅' if user_buy["stat"] == 'y' else '❎'
+    code = '✅' if _open["allow_code"] == True else '❎'
+    buy_stat = '✅' if user_buy["stat"] == True else '❎'
     leave_ban = '✅' if _open["leave_ban"] else '❎'
     uplays = '✅' if _open["uplays"] else '❎'
 
-    if user_buy["stat"] == "y":
+    if user_buy["stat"] == True:
         return ikb([[('📄 导出日志', 'log_out'), ('📌 设置探针', 'set_tz')],
             [('💠 emby线路', 'set_line'), ('🎬 显/隐指定库', 'set_block')],
             [(f'{code} 注册码续期', 'open_allow_code'), (f'{buy_stat} 开关购买', 'set_buy')],

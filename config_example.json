@@ -24,7 +24,7 @@
         "all_user": 3333,
         "timing": 0,
         "tem": 2482,
-        "allow_code": "y",
+        "allow_code": true,
         "checkin": false,
         "exchange": false,
         "whitelist": true,
