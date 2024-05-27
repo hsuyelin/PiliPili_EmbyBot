@@ -625,19 +625,19 @@ async def do_store_whitelist(_, call):
 
 @bot.on_callback_query(filters.regex('store-invite') & user_in_group_on_filter)
 async def do_store_invite(_, call):
-    if _open.invite:
+    if _open["invite"] == True:
         e = sql_get_emby(tg=call.from_user.id)
         if not e or not e.embyid:
             return callAnswer(call, '❌ 仅持有账户可兑换此选项', True)
-        if e.iv < _open.invite_cost:
+        if e.iv < _open["invite_cost"]:
             return await callAnswer(call,
-                                    f'🏪 兑换规则：\n当前兑换邀请码至少需要 {_open.invite_cost} {sakura_b}。勉励',
+                                    f'🏪 兑换规则：\n当前兑换邀请码至少需要 {_open["invite_cost"]} {sakura_b}。勉励',
                                     True)
         await editMessage(call,
                           f'🎟️ 请回复创建 [数量] [模式]\n\n'
                           f'**模式**： link -深链接 | code -码\n'
                           f'**示例**：`1 code` 记作 1条 季度注册码\n'
-                          f'**注意**：兑率 = {_open.invite_cost}{sakura_b}\n'
+                          f'**注意**：兑率 = {_open["invite_cost"]}{sakura_b}\n'
                           f'__取消本次操作，请 /cancel__')
         content = await callListen(call, 120)
         if content is False:
@@ -648,7 +648,7 @@ async def do_store_invite(_, call):
         try:
             count, method = content.text.split()
             count = int(count)
-            cost = int(_open.invite_cost)
+            cost = int(_open["invite_cost"])
             if e.iv < cost:
                 return await asyncio.gather(content.delete(),
                                             sendMessage(call,

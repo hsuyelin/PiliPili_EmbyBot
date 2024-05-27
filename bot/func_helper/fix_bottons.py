@@ -98,8 +98,8 @@ re_reset_manga_ikb = ikb([[('♻️ 重试', 'manga_password_update')], [('🔙 
 
 
 def store_ikb():
-    return ikb([[(f'⚖️ {sakura_b}续期', 'store-renew'), (f'♾️ 兑换白名单', 'store-whitelist')],
-                [(f'🎟️ 兑换注册码', 'store-invite'), (f'🔍 查询注册码', 'store-query')], [(f'❌ 取消', 'members')]])
+    return ikb([[(f'🎟️ 兑换注册码', 'store-invite'), (f'♾️ 兑换白名单', 'store-whitelist')],
+                [(f'❌ 取消', 'members')]])
 
 
 re_store_renew = ikb([[('✨ 重新输入', 'changetg'), ('💫 取消输入', 'storeall')]])
