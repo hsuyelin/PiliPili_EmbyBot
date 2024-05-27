@@ -278,11 +278,6 @@ async def cr_kk_ikb(uid, first):
                 total_time = rst[0][1]
                 text1 = f"**· 🔋 上次活动** | {last_time.split('.')[0]}\n" \
                         f"**· 📅 总计时长** | {total_time} min\n"
-                rst1 = await emby.emby_1th_anniversary_check(user_id=embyid)
-                if rst1:
-                    text1 += f"**· 😁 截至1周年抽奖资格日(2024-05-12)时长** | {rst1[0][1]} min"
-                else:
-                    text1 += f"**· 😅 截至1周年抽奖资格日(2024-05-12)尚未有观影或者播放音乐专辑的记录**"
             except (TypeError, IndexError, ValueError):
                 text1 = f"**· 📅 从未观影或者播放音乐专辑**"
         else:
