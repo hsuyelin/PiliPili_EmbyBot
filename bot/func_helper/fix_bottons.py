@@ -21,8 +21,8 @@ def judge_start_ikb(uid: int) -> InlineKeyboardMarkup:
     d = [['️👥 用户功能', 'members'], ['🌐 服务器', 'server'], ['🎟️ 使用注册码', 'exchange']]  # ['🏪 商店', 'store_all']
     if _open["checkin"]:
         d.append([f'🎯 签到', 'checkin'])
-    if user_buy["stat"] == True:
-        d.append(user_buy["button"])
+    # if user_buy["stat"] == True:
+    #     d.append(user_buy["button"])
     lines = array_chunk(d, 2)
     if judge_admins(uid):
         lines.append([['👮🏻‍♂️ admin', 'manage']])
@@ -192,6 +192,22 @@ async def cr_paginate(i, j, n) -> InlineKeyboardMarkup:
     keyboard.paginate(i, j, f'pagination_keyboard:{{number}}-{i}-{n}')
     keyboard.row(
         InlineButton('❌ - Close', 'closeit')
+    )
+    return keyboard
+
+
+async def user_query_page(i, j) -> InlineKeyboardMarkup:
+    """
+    member的注册码查询分页
+    :param i: 总
+    :param j: 当前
+    :param tg: tg
+    :return:
+    """
+    keyboard = InlineKeyboard()
+    keyboard.paginate(i, j, 'store-query:{number}')
+    keyboard.row(
+        InlineButton('❌ Close', f'closeit'), InlineButton('🔙 Back', 'storeall')
     )
     return keyboard
 

@@ -18,11 +18,11 @@ from pyrogram import filters
 from bot.func_helper.emby import emby
 from bot.func_helper.manga import manga
 from bot.func_helper.filters import user_in_group_on_filter
-from bot.func_helper.utils import members_info, tem_alluser, wh_msg
+from bot.func_helper.utils import members_info, tem_alluser, wh_msg, cr_link_one
 from bot.func_helper.fix_bottons import members_ikb, back_members_ikb, re_create_ikb, del_me_ikb, re_delme_ikb, \
     re_reset_ikb, re_changetg_ikb, emby_block_ikb, user_emby_block_ikb, user_emby_unblock_ikb, re_exchange_b_ikb, \
     store_ikb, re_store_renew, re_bindtg_ikb, manga_ikb, back_manga_ikb, re_create_manga_ikb, re_delme_manga_ikb, \
-    del_me_manga_ikb, re_reset_manga_ikb
+    del_me_manga_ikb, re_reset_manga_ikb, user_query_page
 from bot.func_helper.msg_utils import callAnswer, editMessage, callListen, sendMessage
 from bot.modules.commands.exchange import rgs_code
 from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby, sql_delete_emby, sql_change_emby_tg
@@ -625,12 +625,67 @@ async def do_store_whitelist(_, call):
 
 @bot.on_callback_query(filters.regex('store-invite') & user_in_group_on_filter)
 async def do_store_invite(_, call):
-    await callAnswer(call, '❌ 管理员未开启此兑换，等待编写', True)
+    if _open.invite:
+        e = sql_get_emby(tg=call.from_user.id)
+        if not e or not e.embyid:
+            return callAnswer(call, '❌ 仅持有账户可兑换此选项', True)
+        if e.iv < _open.invite_cost:
+            return await callAnswer(call,
+                                    f'🏪 兑换规则：\n当前兑换邀请码至少需要 {_open.invite_cost} {sakura_b}。勉励',
+                                    True)
+        await editMessage(call,
+                          f'🎟️ 请回复创建 [数量] [模式]\n\n'
+                          f'**模式**： link -深链接 | code -码\n'
+                          f'**示例**：`1 code` 记作 1条 季度注册码\n'
+                          f'**注意**：兑率 = {_open.invite_cost}{sakura_b}\n'
+                          f'__取消本次操作，请 /cancel__')
+        content = await callListen(call, 120)
+        if content is False:
+            return await do_store(_, call)
+
+        elif content.text == '/cancel':
+            return await asyncio.gather(content.delete(), do_store(_, call))
+        try:
+            count, method = content.text.split()
+            count = int(count)
+            cost = int(_open.invite_cost)
+            if e.iv < cost:
+                return await asyncio.gather(content.delete(),
+                                            sendMessage(call,
+                                                        f'您只有 {e.iv}{sakura_b}，而您需要花费 {cost}，超前消费是不可取的哦！？',
+                                                        timer=10),
+                                            do_store(_, call))
+            times = "65535"
+            days = int(times)
+            if method != 'code' and method != 'link':
+                return editMessage(call, '⭕ 输入的method参数有误')
+        except (AttributeError, ValueError, IndexError):
+            return await asyncio.gather(sendMessage(call, f'⚠️ 检查输入，格式似乎有误\n{content.text}', timer=10),
+                                        do_store(_, call),
+                                        content.delete())
+        else:
+            sql_update_emby(Emby.tg == call.from_user.id, iv=e.iv - cost)
+            links = await cr_link_one(call.from_user.id, times, count, days, method)
+            if links is None:
+                return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库')
+            links = f"🎯 {bot_name}已为您生成了 {count} 个 邀请码 \n\n" + links
+            chunks = [links[i:i + 4096] for i in range(0, len(links), 4096)]
+            for chunk in chunks:
+                await sendMessage(content, chunk)
+            LOGGER.info(f"【注册码兑换】：{bot_name}已为 {content.from_user.id} 生成了 {count} 个邀请码")
 
 
 @bot.on_callback_query(filters.regex('store-query') & user_in_group_on_filter)
 async def do_store_query(_, call):
-    await callAnswer(call, '❌ 管理员未开启此兑换，等待编写', True)
+    a, b = sql_count_c_code(tg_id=call.from_user.id)
+    if not a:
+        return await callAnswer(call, '❌ 空', True)
+    try:
+        number = int(call.data.split(':')[1])
+    except (IndexError, KeyError, ValueError):
+        number = 1
+    await callAnswer(call, '📜 正在翻页')
+    await editMessage(call, text=a[number - 1], buttons=await user_query_page(b, number))
 
 
 @bot.on_callback_query(filters.regex('manga_panel') & user_in_group_on_filter)

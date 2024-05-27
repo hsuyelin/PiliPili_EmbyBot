@@ -217,10 +217,9 @@ async def open_all_user_l(_, call):
 async def cr_link(_, call):
     await callAnswer(call, '✔️ 创建注册码')
     send = await editMessage(call,
-                             f'🎟️ 请回复创建 [天数] [数量] [模式]\n\n'
-                             f'**天数**：月30，季90，半年180，年365\n'
+                             f'🎟️ 请回复创建 [数量] [模式]\n\n'
                              f'**模式**： link -深链接 | code -码\n'
-                             f'**示例**：`1 20 link` 记作 20条 1天注册码链接\n'
+                             f'**示例**：`20 code` 记作 20条 注册码\n'
                              f'__取消本次操作，请 /cancel__')
     if isinstance(content, bool):
         return
@@ -233,8 +232,9 @@ async def cr_link(_, call):
         return await editMessage(call, '⭕ 您已经取消操作了。', buttons=re_cr_link_ikb)
     try:
         await content.delete()
-        times, count, method = content.text.split()
+        count, method = content.text.split()
         count = int(count)
+        times = "65535"
         days = int(times)
         if method != 'code' and method != 'link':
             return editMessage(call, '⭕ 输入的method参数有误', buttons=re_cr_link_ikb)
@@ -244,12 +244,12 @@ async def cr_link(_, call):
         links = await cr_link_one(call.from_user.id, times, count, days, method)
         if links is None:
             return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库。', buttons=re_cr_link_ikb)
-        links = f"🎯 {bot_name}已为您生成了 **{days}天** 邀请码 {count} 个\n\n" + links
+        links = f"🎯 {bot_name}已为您生成了 {count} 个 邀请码 \n\n" + links
         chunks = [links[i:i + 4096] for i in range(0, len(links), 4096)]
         for chunk in chunks:
             await sendMessage(content, chunk, buttons=close_it_ikb)
-        await editMessage(call, f'📂 {bot_name}已为 您 生成了 {count} 个 {days} 天邀请码', buttons=re_cr_link_ikb)
-        LOGGER.info(f"【admin】：{bot_name}已为 {content.from_user.id} 生成了 {count} 个 {days} 天邀请码")
+        await editMessage(call, f'📂 {bot_name}已为 您 生成了 {count} 个 邀请码', buttons=re_cr_link_ikb)
+        LOGGER.info(f"【admin】：{bot_name}已为 {content.from_user.id} 生成了 {count} 个 邀请码")
 
 
 # 检索

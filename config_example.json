@@ -30,13 +30,14 @@
         "whitelist": true,
         "invite": true,
         "leave_ban": false,
-        "uplays": false
+        "uplays": false,
+        "invite_cost": 500
     },
     "admins": [
         1649994819,
         6139996110
     ],
-    "invite": "y",
+    "invite": true,
     "money": "P坷垃",
     "emby_api": "21bc77f3468746a7999993aa7f877b74",
     "emby_url": "http://202.61.999.218:8096",
