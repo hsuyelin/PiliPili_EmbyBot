@@ -668,11 +668,11 @@ async def do_store_invite(_, call):
             links = await cr_link_one(call.from_user.id, times, count, days, method)
             if links is None:
                 return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库')
-            links = f"🎯 {bot_name}已为您生成了 {count} 个 邀请码 \n\n" + links
+            links = f"🎯 已为您生成了 {count} 个 邀请码 \n\n" + links
             chunks = [links[i:i + 4096] for i in range(0, len(links), 4096)]
             for chunk in chunks:
                 await sendMessage(content, chunk)
-            LOGGER.info(f"【注册码兑换】：{bot_name}已为 {content.from_user.id} 生成了 {count} 个邀请码")
+            LOGGER.info(f"【注册码兑换】：已为 {content.from_user.id} 生成了 {count} 个邀请码")
 
 
 @bot.on_callback_query(filters.regex('store-query') & user_in_group_on_filter)
