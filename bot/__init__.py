@@ -68,6 +68,8 @@ admins = config["admins"]
 if owner in admins:
     admins.remove(owner)
     save_config()
+if "coin_admins" not in config:
+    config["coin_admins"] = []
 coin_admins = config["coin_admins"]
 if not isinstance(coin_admins, list):
     coin_admins = []
