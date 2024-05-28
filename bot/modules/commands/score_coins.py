@@ -10,7 +10,7 @@ import asyncio
 
 from pyrogram import filters
 from pyrogram.errors import BadRequest
-from bot import bot, prefixes, LOGGER, sakura_b, owner
+from bot import bot, prefixes, LOGGER, sakura_b, owner, coin_admins
 from bot.func_helper.filters import admins_on_filter
 from bot.func_helper.msg_utils import sendMessage, deleteMessage
 from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby
@@ -112,7 +112,12 @@ async def coins_user(_, msg):
     else:
         content = f"🎯 [{msg.from_user.first_name}](tg://user?id={msg.from_user.id}) 偷走了 [{first.first_name}](tg://user?id={uid}) {abs(b)} {sakura_b}"
 
-    if msg.from_user.id != owner or not enableAdmin:
+    if not enableAdmin:
+        await asyncio.gather(sendMessage(msg, content), msg.delete())
+        LOGGER.info(f"【用户】[{sakura_b}]: {content}")
+        return
+        
+    if msg.from_user.id != owner and msg.from_user.id not in coin_admins:
         await asyncio.gather(sendMessage(msg, content), msg.delete())
         LOGGER.info(f"【用户】[{sakura_b}]: {content}")
         return

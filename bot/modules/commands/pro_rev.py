@@ -8,7 +8,7 @@ import asyncio
 from pyrogram import filters
 from pyrogram.errors import BadRequest
 
-from bot import bot, prefixes, owner, admins, save_config, LOGGER
+from bot import bot, prefixes, owner, admins, coin_admins, save_config, LOGGER
 from bot.func_helper.filters import admins_on_filter
 from bot.func_helper.msg_utils import sendMessage, deleteMessage
 from bot.func_helper.utils import wh_msg
@@ -71,6 +71,31 @@ async def pro_user(_, msg):
     LOGGER.info(f"【admin】：{msg.from_user.id} 新更新 白名单 {first.first_name}-{uid}")
 
 
+@bot.on_message(filters.command('procoinsadmin', prefixes=prefixes) & filters.user(owner))
+async def pro_coins_admin(_, msg):
+    if msg.reply_to_message is None:
+        try:
+            uid = int(msg.text.split()[1])
+            first = await bot.get_chat(uid)
+        except (IndexError, KeyError, BadRequest):
+            await deleteMessage(msg)
+            return await sendMessage(msg,
+                                     '**请先给我一个正确的id！**\n输入格式为：/procoinsadmin [tgid]或**命令回复想要授权的人**',
+                                     timer=60)
+    else:
+        uid = msg.reply_to_message.from_user.id
+        first = await bot.get_chat(uid)
+    if uid not in coin_admins:
+        coin_admins.append(uid)
+        save_config()
+
+    await asyncio.gather(deleteMessage(msg), sendMessage(msg,
+                                                         f"**{random.choice(wh_msg)}**\n\n"
+                                                         f"👮🏻 新更新硬币管理员 #[{first.first_name}](tg://user?id={uid}) | `{uid}`\n**当前coin admins**\n{coin_admins}"))
+
+    LOGGER.info(f"【coin admins】：{msg.from_user.id} 新更新 硬币管理 {first.first_name}-{uid}")
+
+
 # 减少管理
 @bot.on_message(filters.command('revadmin', prefixes=prefixes) & filters.user(owner))
 async def del_admin(_, msg):
@@ -118,3 +143,29 @@ async def rev_user(_, msg):
     else:
         return await sendMessage(msg, '⚠️ 数据库执行错误')
     LOGGER.info(f"【admin】：{msg.from_user.id} 新移除 白名单 {first.first_name}-{uid}")
+
+
+# 减少管理
+@bot.on_message(filters.command('revcoinsadmin', prefixes=prefixes) & filters.user(owner))
+async def del_admin(_, msg):
+    if msg.reply_to_message is None:
+        try:
+            uid = int(msg.text.split()[1])
+            first = await bot.get_chat(uid)
+        except (IndexError, KeyError, BadRequest):
+            await deleteMessage(msg)
+            return await sendMessage(msg,
+                                     '**请先给我一个正确的id！**\n输入格式为：/revcoinsadmin [tgid]或**命令回复想要取消授权的人**',
+                                     timer=60)
+
+    else:
+        uid = msg.reply_to_message.from_user.id
+        first = await bot.get_chat(uid)
+    if uid in coin_admins:
+        coin_admins.remove(uid)
+        save_config()
+
+    await asyncio.gather(deleteMessage(msg), sendMessage(msg,
+                                                         f"**{random.choice(wh_msg)}**\n\n"
+                                                         f"👮🏻 已减少硬币管理员 #[{first.first_name}](tg://user?id={uid}) | `{uid}`\n**当前coin admins**\n{coin_admins}"))
+    LOGGER.info(f"【coins admin】：{msg.from_user.id} 新减少 硬币管理 {first.first_name}-{uid}")

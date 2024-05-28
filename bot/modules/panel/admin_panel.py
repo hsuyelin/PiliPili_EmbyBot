@@ -221,9 +221,6 @@ async def cr_link(_, call):
                              f'**模式**： link -深链接 | code -码\n'
                              f'**示例**：`20 code` 记作 20条 注册码\n'
                              f'__取消本次操作，请 /cancel__')
-    if isinstance(content, bool):
-        return
-
     content = await callListen(call, 120, buttons=re_cr_link_ikb)
     if isinstance(content, bool):
         return

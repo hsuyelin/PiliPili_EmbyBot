@@ -68,6 +68,12 @@ admins = config["admins"]
 if owner in admins:
     admins.remove(owner)
     save_config()
+coin_admins = config["coin_admins"]
+if not isinstance(coin_admins, list):
+    coin_admins = []
+if owner in coin_admins:
+    coin_admins.remove(owner)
+    save_config()
 invite = config["invite"]
 sakura_b = config["money"]
 try:
@@ -192,6 +198,8 @@ admin_p = user_p + [
 owner_p = admin_p + [
     BotCommand("proadmin", "添加bot管理 [owner]"),
     BotCommand("revadmin", "移除bot管理 [owner]"),
+    BotCommand("procoinsadmin", "添加硬币管理 [owner]"),
+    BotCommand("revcoinsadmin", "移除硬币管理 [owner]"),
     BotCommand("renewall", "一键派送天数给所有未封禁的用户 [owner]"),
     BotCommand("bindall_id", "一键更新用户们Embyid [owner]"),
     BotCommand("backup_db", "手动备份数据库[owner]"),
