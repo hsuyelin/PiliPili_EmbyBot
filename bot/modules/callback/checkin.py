@@ -12,9 +12,9 @@ from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby
 
 
 def generate_random_expression():
-    if random.random() < 0.01:
+    if random.random() < 0.025:
         while True:
-            num1 = random.randint(1, 999)
+            num1 = random.randint(1, 99)
             op = random.choice(['+', '-', '*', '/'])
             if op == '+':
                 num2 = 88 - num1
@@ -25,17 +25,17 @@ def generate_random_expression():
                     continue
                 num2 = 88 // num1
             elif op == '/':
-                if num1 == 0 or 88 * num1 > 999:
+                if num1 == 0 or 88 * num1 > 99:
                     continue
                 num2 = num1 * 88
                 
-            if 1 <= num2 <= 999:
+            if 1 <= num2 <= 100:
                 expression = f"{num1} {op} {num2}"
                 return (expression, 88)
             
     while True:
-        num1 = random.randint(1, 999)
-        num2 = random.randint(1, 999)
+        num1 = random.randint(1, 99)
+        num2 = random.randint(1, 99)
         op = random.choice(['+', '-', '*', '/'])
         
         if op == '/':
@@ -53,7 +53,7 @@ def generate_random_expression():
             elif op == '*':
                 result = num1 * num2
                 
-        if 0 <= result <= 1000:
+        if 0 < result <= 100:
             expression = f"{num1} {op} {num2}"
             return (expression, result)
 
@@ -66,10 +66,14 @@ async def user_in_checkin(_, call):
         e = sql_get_emby(tg=call.from_user.id)
         if e.ch is None or e.ch.strftime("%Y-%m-%d") < now_i:
             expression, result = generate_random_expression()
+            expression = expression.replace('/', '÷')
             reward = 88 if result == 88 else random.randint(6, 18)
 
-            await editMessage(call,
-                              f'🎯 **签到说明**：\n\n在120s内发送 {expression} 的值。随机获得6~18 {sakura_b}(概率获得88 {sakura_b})')
+            await editMessage(call, 
+                f'🎯 **签到说明**：\n\n' +
+                f'在120s内计算出四则运算表达式(+/-/*/÷) {expression} 的值。\n' +
+                f'结果正确你将会随机获得6~18 {sakura_b}(概率获得88 {sakura_b})\n'+
+                f'结果错误你将需要返回重新签到')
             text = await callListen(call, timer=120, buttons=checkin_button)
             if isinstance(text, bool):
                 await callAnswer(call, '❌ 发生未知错误，请联系管理员！', True)
