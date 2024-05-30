@@ -92,9 +92,7 @@ async def user_in_checkin(_, call):
                 return
                 
             sql_update_emby(Emby.tg == call.from_user.id, iv=iv, ch=now)
-            message = f'🎉 **签到成功** | {reward} {sakura_b}\n'
-                      f'💴 **当前状态** | {iv} {sakura_b}\n'
-                      f'⏳ **签到日期** | {now_i}'
+            message = f'🎉 **签到成功** | {reward} {sakura_b}\n💴 **当前状态** | {iv} {sakura_b}\n⏳ **签到日期** | {now_i}'
             if is_children_day():
                 message += f'\n🦖 热忱之心，不可磨灭，希望你永远拥有一颗纯洁质朴的心'
             await asyncio.gather(call.message.delete(), sendMessage(call, text=message))
