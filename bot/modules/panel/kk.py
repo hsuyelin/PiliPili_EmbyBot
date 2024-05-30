@@ -10,7 +10,7 @@ from bot.func_helper.emby import emby
 from bot.func_helper.filters import admins_on_filter
 from bot.func_helper.fix_bottons import cr_kk_ikb, gog_rester_ikb
 from bot.func_helper.msg_utils import deleteMessage, sendMessage, sendPhoto, editMessage
-from bot.func_helper.utils import judge_admins, cr_link_one
+from bot.func_helper.utils import judge_admins, cr_link_two
 from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby
 
 
@@ -169,17 +169,12 @@ async def gift(_, call):
     first = await bot.get_chat(b)
     e = sql_get_emby(tg=b)
     if e.embyid is None:
-        times = "65535"
-        count = 1
-        days = int(times)
-        method = "code"
-        links = await cr_link_one(call.from_user.id, times, count, days, method)
+        link = await cr_link_two(tg=call.from_user.id, times=b, days=65535)
         if links is None:
-            return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库')
-        await sendMessage(call,
-                          f'🌟 好的，管理员 [{call.from_user.first_name}](tg://user?id={call.from_user.id})\n'
-                          f'已为 [{first.first_name}](tg://user?id={b}) 赠予资格, 请前往bot注册你的账号吧',
-                          send=True)
+            return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库。')
+        await editMessage(call, f"🌟 好的，管理员 [{call.from_user.first_name}](tg://user?id={call.from_user.id})\n"
+                                f'已为 [{first.first_name}](tg://user?id={b}) 赠予资格。前往bot进行下一步操作：',
+                          buttons=gog_rester_ikb(link))
         LOGGER.info(f"【admin】：{call.from_user.id} 已发送 注册资格 {first.first_name} - {b} ")
     else:
         await editMessage(call, f'💢 [ta](tg://user?id={b}) 已注册账户。')
