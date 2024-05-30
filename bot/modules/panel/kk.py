@@ -170,11 +170,15 @@ async def gift(_, call):
     e = sql_get_emby(tg=b)
     if e.embyid is None:
         link = await cr_link_two(tg=call.from_user.id, times=b, days=65535)
-        if links is None:
+        if link is None:
+            LOGGER.info(f"【admin】：{call.from_user.id} 赠送资格失败")
             return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库。')
-        await editMessage(call, f"🌟 好的，管理员 [{call.from_user.first_name}](tg://user?id={call.from_user.id})\n"
-                                f'已为 [{first.first_name}](tg://user?id={b}) 赠予资格。前往bot进行下一步操作：',
-                          buttons=gog_rester_ikb(link))
+        LOGGER.info(f"【admin】：{first.first_name} 已获取注册码链接 {link}")
+        message = f"""
+        🌟 好的，管理员 [{call.from_user.first_name}](tg://user?id={call.from_user.id})
+        已为 [{first.first_name}](tg://user?id={b}) 赠予资格。前往bot进行下一步操作：
+        """
+        await editMessage(call, text=message, buttons=gog_rester_ikb(link))
         LOGGER.info(f"【admin】：{call.from_user.id} 已发送 注册资格 {first.first_name} - {b} ")
     else:
         await editMessage(call, f'💢 [ta](tg://user?id={b}) 已注册账户。')
