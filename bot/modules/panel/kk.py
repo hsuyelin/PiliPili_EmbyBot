@@ -171,7 +171,7 @@ async def gift(_, call):
     if e.embyid is None:
         link = await cr_link_two(tg=call.from_user.id, times=b, days=65535)
         if link is None:
-            LOGGER.info(f"【admin】：{call.from_user.id} 赠送资格失败")
+            LOGGER.info(f"【admin】：{call.from_user.id} 赠送给 {b} 资格失败")
             return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库。')
         LOGGER.info(f"【admin】：{first.first_name} 已获取注册码链接 {link}")
         message = f"""

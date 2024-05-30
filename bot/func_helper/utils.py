@@ -138,8 +138,8 @@ async def cr_link_one(tg: int, times, count, days: int, method: str):
 
 async def cr_link_two(tg: int, times, days: int):
     code_list = []
-    p = uuid.uuid4()
-    uid = f'{ranks["logo"]}-{times}-{str(p).replace("-", "")}'
+    p = await pwd_create(10)
+    uid = f'{ranks["logo"]}-{times}-{p}'
     code_list.append(uid)
     link = f't.me/{bot_name}?start={uid}'
     if sql_add_code(code_list, tg, days) is False:
