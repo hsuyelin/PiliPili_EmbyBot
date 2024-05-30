@@ -174,10 +174,7 @@ async def gift(_, call):
             LOGGER.info(f"【admin】：{call.from_user.id} 赠送给 {b} 资格失败")
             return await editMessage(call, '⚠️ 数据库插入失败，请检查数据库。')
         LOGGER.info(f"【admin】：{first.first_name} 已获取注册码链接 {link}")
-        message = f"""
-        🌟 好的，管理员 [{call.from_user.first_name}](tg://user?id={call.from_user.id})
-        已为 [{first.first_name}](tg://user?id={b}) 赠予资格。前往bot进行下一步操作：
-        """
+        message = f"🌟 好的，管理员 [{call.from_user.first_name}](tg://user?id={call.from_user.id})\n已为 [{first.first_name}](tg://user?id={b}) 赠予资格。前往bot进行下一步操作："
         await editMessage(call, text=message, buttons=gog_rester_ikb(link))
         LOGGER.info(f"【admin】：{call.from_user.id} 已发送 注册资格 {first.first_name} - {b} ")
     else:
