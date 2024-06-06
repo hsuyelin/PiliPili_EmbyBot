@@ -114,11 +114,18 @@ class Uplaysinfo:
         LOGGER.info(f"查询{sakura_b}排行榜 - 组合 admin 列表: {unique_admins_str} | 指定查询的个数: {num}")
 
         count = num + len(unique_admins)
-        records = sql_get_iv_ranks(count, unique_admins)
+        records = sql_get_iv_ranks(count)
+        
+        if not records:
+            await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=f"😠查询 {sakura_b} 排行榜失败，请联系管理员")
+            return
+
         LOGGER.info(f"查询{sakura_b}排行榜 - 共获取到 {len(records)} 条数据")
 
-        if not records:
-            return
+        if unique_admins:
+            records = [record for record in records if record.tg not in unique_admins]
+
+        LOGGER.info(f"查询{sakura_b}排行榜 - 过滤掉管理员之后共获取到 {len(records)} 条数据")
 
         total_records_count = len(records)
         txt = f'**▎{ranks["logo"]} {sakura_b}排行榜 TOP{total_records_count}**\n\n'
