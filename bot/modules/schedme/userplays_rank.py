@@ -35,15 +35,16 @@ class Uplaysinfo:
             txt += f'TOP{n}  用户: {emby_name}\n时长: {ad_time}\n'
             n += 1
         txt += f'\n#看片榜 {datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")}'
-        send = await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=txt)
         if uplays and _open["uplays"]:
-            # print(1)
+            send = await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=txt)
             if sql_update_embys(some_list=ls, method='iv'):
                 await send.reply(f'**自动将观看时长转换为{sakura_b}\n请已上榜用户检查是否到账**')
                 LOGGER.info(f'【userplayrank】： ->成功 数据库执行批量操作{ls}')
             else:
                 await send.reply(f'**🎂！！！为上榜用户增加{sakura_b}出错啦** @工程师看看吧~ ')
                 LOGGER.error(f'【userplayrank】：-？失败 数据库执行批量操作{ls}')
+        else:
+            await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=txt)
 
     @staticmethod
     async def check_low_activity():
@@ -51,7 +52,6 @@ class Uplaysinfo:
         if not success:
             return await bot.send_message(chat_id=group[0], text='⭕ 调用emby api失败')
         msg = ''
-        # print(users)
         for user in users:
             # 数据库先找
             e = sql_get_emby(tg=user["Name"])

@@ -2,7 +2,7 @@
 基本的sql操作
 """
 from bot.sql_helper import Base, Session, engine
-from sqlalchemy import Column, BigInteger, String, DateTime, Integer, case
+from sqlalchemy import Column, BigInteger, String, DateTime, Integer, case, desc, not_
 from sqlalchemy import func
 from sqlalchemy import or_
 
@@ -225,20 +225,13 @@ def sql_count_emby():
             return count.tg_count, count.embyid_count, count.lv_a_count
 
 
-def sql_get_iv_ranks(num_records: int = 10, exclude_tgs: list = []):
-    """
-    Fetch records sorted by iv in descending order.
-
-    :param num_records: Number of records to fetch
-    :return: List of Emby records
-    """
+def sql_get_iv_ranks(num_records, exclude_tgs):
     with Session() as session:
         try:
-            result = session.query(Emby) \
-                            .order_by(desc(Emby.iv)) \
-                            .limit(num_records) \
-                            .filter(Emby.tg.notin_(exclude_tgs)) \
-                            .all()
-            return result
+            query = session.query(Emby).order_by(desc(Emby.iv)).limit(num_records)
+            if exclude_tgs:
+                query = query.filter(not_(Emby.tg.in_(exclude_tgs)))
+            records = query.all()
+            return records
         except Exception as e:
             return []
