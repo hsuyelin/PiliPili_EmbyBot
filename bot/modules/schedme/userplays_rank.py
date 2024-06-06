@@ -15,9 +15,12 @@ class Uplaysinfo:
     @staticmethod
     async def user_plays_rank(days=7, uplays=True):
         results = await emby.emby_cust_commit(user_id=None, days=days, method='sp')
+        
         if results is None:
             return await bot.send_photo(chat_id=group[0], photo=bot_photo,
                                         caption=f'🍥 获取过去{days}天UserPlays失败了嘤嘤嘤 ~ 手动重试 ')
+
+        LOGGER.info(f'【userplayrank】： 查询到用户排行数据个数 {len(results)} | 指定天数 {days}')
 
         txt = f'**▎{ranks["logo"]} {days} 天看片榜**\n\n'
         if days == 65535:
@@ -105,7 +108,10 @@ class Uplaysinfo:
             unique_admins_sets = set(admins) | set(coin_admins)
             unique_admins = list(unique_admins_sets)
         except Exception as e:
-            LOGGER.error(f"Error in combining admin lists: {e}")
+            LOGGER.error(f"查询{sakura_b}排行榜 - 组合 admin 列表失败: {e}")
+
+        unique_admins_str = ','.join([str(admin) for admin in unique_admins])
+        LOGGER.info(f"查询{sakura_b}排行榜 - 组合 admin 列表: {unique_admins_str} | 指定查询的个数: {num}")
 
         count = num + len(unique_admins)
         records = sql_get_iv_ranks(count, unique_admins)

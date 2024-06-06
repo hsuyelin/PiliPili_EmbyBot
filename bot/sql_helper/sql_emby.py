@@ -2,7 +2,7 @@
 基本的sql操作
 """
 from bot.sql_helper import Base, Session, engine
-from sqlalchemy import Column, BigInteger, String, DateTime, Integer, case, desc, not_
+from sqlalchemy import Column, BigInteger, String, DateTime, Integer, case, text
 from sqlalchemy import func
 from sqlalchemy import or_
 
@@ -225,13 +225,30 @@ def sql_count_emby():
             return count.tg_count, count.embyid_count, count.lv_a_count
 
 
-def sql_get_iv_ranks(num_records, exclude_tgs):
+def sql_get_iv_ranks(num_records, excluded_tgs):
     with Session() as session:
         try:
-            query = session.query(Emby).order_by(desc(Emby.iv)).limit(num_records)
-            if exclude_tgs:
-                query = query.filter(not_(Emby.tg.in_(exclude_tgs)))
-            records = query.all()
-            return records
+            if not isinstance(num_records, int):
+                num_records = 10
+
+            if not isinstance(excluded_tgs, list):
+                excluded_tgs = []
+
+            if excluded_tgs:
+                excluded_tgs_str = ', '.join(map(str, excluded_tgs))
+                sql_query = text(f"""  
+                    SELECT * FROM emby  
+                    WHERE tg NOT IN ({excluded_tgs_str})  
+                    ORDER BY iv DESC  
+                    LIMIT :num_records  
+                """)
+            else:
+                sql_query = text("""  
+                    SELECT * FROM emby  
+                    ORDER BY iv DESC  
+                    LIMIT :num_records  
+                """)
+
+            return session.execute(sql_query, {'num_records': num_records})
         except Exception as e:
             return []
