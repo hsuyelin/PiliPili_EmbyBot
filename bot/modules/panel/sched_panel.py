@@ -25,18 +25,18 @@ loop.call_later(5, lambda: loop.create_task(BotCommands.set_commands(client=bot)
 
 # 启动定时任务
 auto_backup_db = DbBackupUtils.auto_backup_db
-user_plays_rank = Uplaysinfo.user_plays_rank
-check_low_activity = Uplaysinfo.check_low_activity
-user_coins_rank = Uplaysinfo.user_coins_rank
 
 
-async def user_day_plays(): await user_plays_rank(1)
+async def user_day_plays(): await Uplaysinfo.user_plays_rank(days=1)
 
-async def user_week_plays(): await user_plays_rank(7)
 
-async def user_total_plays(): await user_plays_rank(65535)
+async def user_week_plays(): await Uplaysinfo.user_plays_rank(days=7)
 
-async def user_total_coins(): await user_coins_rank(10)
+
+async def user_total_plays(): await Uplaysinfo.user_plays_rank(days=65535)
+
+
+async def user_total_coins(): await Uplaysinfo.user_coins_rank(num=10)
 
 
 # 写优雅点
@@ -127,7 +127,7 @@ async def check_ex_admin(_, msg):
 # bot数据库手动备份
 @bot.on_message(filters.command('backup_db', prefixes) & filters.user(owner))
 async def manual_backup_db(_, msg):
-    await asyncio.gather(deleteMessage(msg), auto_backup_db())
+    await asyncio.gather(deleteMessage(msg), DbBackupUtils.auto_backup_db())
 
 
 @bot.on_message(filters.command('days_ranks', prefixes) & admins_on_filter)
@@ -144,7 +144,7 @@ async def week_r_ranks(_, msg):
 async def run_low_ac(_, msg):
     await deleteMessage(msg)
     send = await msg.reply(f"⭕ 不活跃检测运行ing···")
-    await asyncio.gather(check_low_activity(), send.delete())
+    await asyncio.gather(Uplaysinfo.check_low_activity(), send.delete())
 
 
 @bot.on_message(filters.command('uranks', prefixes) & admins_on_filter)
@@ -152,10 +152,11 @@ async def shou_dong_uplayrank(_, msg):
     await deleteMessage(msg)
     try:
         days = int(msg.command[1])
-        await user_plays_rank(days=days)
+        LOGGER.info(f"手动获取用户播放时长排行榜 - 天数: {days}")
+        await Uplaysinfo.user_plays_rank(days=days)
     except Exception as e:
         try:
-            await user_plays_rank(65535)
+            await Uplaysinfo.user_plays_rank(days=65535)
         except Exception as e:
             pass
 
@@ -165,13 +166,14 @@ async def shou_dong_coinrank(_, msg):
     await deleteMessage(msg)
     try:
         nums = int(msg.command[1])
-        await user_coins_rank(nums)
+        LOGGER.info(f"手动获取硬币排行榜 - 个数: {nums}")
+        await Uplaysinfo.user_coins_rank(num=nums)
     except Exception as e:
         try:
-            await user_coins_rank(10)
+            await Uplaysinfo.user_coins_rank()
         except Exception as e:
             pass
-            
+
 
 @bot.on_message(filters.command('restart', prefixes) & admins_on_filter)
 async def restart_bot(_, msg):

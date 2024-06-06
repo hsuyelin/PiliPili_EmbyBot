@@ -105,14 +105,24 @@ class Uplaysinfo:
             unique_admins_sets = set(admins) | set(coin_admins)
             unique_admins = list(unique_admins_sets)
         except Exception as e:
-            pass
+            LOGGER.error(f"Error in combining admin lists: {e}")
 
         count = num + len(unique_admins)
         records = sql_get_iv_ranks(count, unique_admins)
-        txt = f'**▎{ranks["logo"]} {sakura_b}排行榜 TOP{count}**\n\n'
+        LOGGER.info(f"查询{sakura_b}排行榜 - 共获取到 {len(records)} 条数据")
+
+        if not records:
+            return
+
+        total_records_count = len(records)
+        txt = f'**▎{ranks["logo"]} {sakura_b}排行榜 TOP{total_records_count}**\n\n'
         n = 1
         for record in records:
-            txt += f"TOP{n} 用户: tg://user?id={record.tg}\n{sakura_b}: {record.iv}\n"
-            n += 1
+            try:
+                txt += f"TOP{n} 用户: tg://user?id={record.tg}\n{sakura_b}: {record.iv}\n"
+                n += 1
+            except Exception as e:
+                LOGGER.error(f"查询{sakura_b}排行榜 - 处理失败: {e}, 记录: {record}")
+
         txt += f'\n#{sakura_b}榜 {datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")}'
         await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=txt)

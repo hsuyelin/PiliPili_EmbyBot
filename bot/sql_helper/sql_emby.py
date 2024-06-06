@@ -232,10 +232,13 @@ def sql_get_iv_ranks(num_records: int = 10, exclude_tgs: list = []):
     :param num_records: Number of records to fetch
     :return: List of Emby records
     """
-    try:
-        with Session() as session:
-            query = session.query(Emby).filter(~Emby.tg.in_(exclude_tgs)).order_by(desc(Emby.iv)).limit(num_records)
-            result = query.all()
+    with Session() as session:
+        try:
+            result = session.query(Emby) \
+                            .order_by(desc(Emby.iv)) \
+                            .limit(num_records) \
+                            .filter(Emby.tg.notin_(exclude_tgs)) \
+                            .all()
             return result
-    except Exception as e:
-        return []
+        except Exception as e:
+            return []
