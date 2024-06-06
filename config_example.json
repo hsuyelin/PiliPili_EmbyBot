@@ -67,6 +67,7 @@
         "dayplayrank": true,
         "weekplayrank": true,
         "totalplayrank": true,
+        "totalcoinsrank": true,
         "check_ex": false,
         "low_activity": false,
         "backup_db": true,

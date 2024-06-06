@@ -323,6 +323,8 @@ def sched_buttons():
     weekrank = '✅' if schedall["weekrank"] else '❎'
     dayplayrank = '✅' if schedall["dayplayrank"] else '❎'
     weekplayrank = '✅' if schedall["weekplayrank"] else '❎'
+    totalplayrank = '✅' if schedall["totalplayrank"] else '❎'
+    totalcoinsrank = '✅' if schedall["totalcoinsrank"] else '❎'
     check_ex = '✅' if schedall["check_ex"] else '❎'
     low_activity = '✅' if schedall["low_activity"] else '❎'
     backup_db = '✅' if schedall["backup_db"] else '❎'
@@ -331,6 +333,8 @@ def sched_buttons():
                  InlineButton(f'{weekrank} 播放周榜', f'sched-weekrank'),
                  InlineButton(f'{dayplayrank} 看片日榜', f'sched-dayplayrank'),
                  InlineButton(f'{weekplayrank} 看片周榜', f'sched-weekplayrank'),
+                 InlineButton(f'{totalplayrank} 看片总榜', f'sched-totalplayrank'),
+                 InlineButton(f'{totalcoinsrank} {sakura_b}总榜', f'sched-totalcoinsrank'),
                  InlineButton(f'{check_ex} 到期保号', f'sched-check_ex'),
                  InlineButton(f'{low_activity} 活跃保号', f'sched-low_activity'),
                  InlineButton(f'{backup_db} 自动备份数据库', f'sched-backup_db'),

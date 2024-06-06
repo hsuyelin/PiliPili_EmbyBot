@@ -92,7 +92,15 @@ try:
 except:
     # schedall = {"dayrank": True, "weekrank": True, "dayplayrank": False, "weekplayrank": False, "check_ex": True,
     #             "low_activity": False, "backup_db": True}
-    schedall = {"dayrank": True, "weekrank": True, "dayplayrank": False, "weekplayrank": False, "totalplayrank": False, "backup_db": True}
+    schedall = {
+        "dayrank": True, 
+        "weekrank": True, 
+        "dayplayrank": False, 
+        "weekplayrank": False, 
+        "totalplayrank": False, 
+        "totalcoinsrank": True,
+        "backup_db": True
+    }
     config["schedall"] = schedall
     save_config()
 if "backup_db" not in schedall:

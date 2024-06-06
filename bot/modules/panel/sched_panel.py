@@ -27,6 +27,7 @@ loop.call_later(5, lambda: loop.create_task(BotCommands.set_commands(client=bot)
 auto_backup_db = DbBackupUtils.auto_backup_db
 user_plays_rank = Uplaysinfo.user_plays_rank
 check_low_activity = Uplaysinfo.check_low_activity
+user_coins_rank = Uplaysinfo.user_coins_rank
 
 
 async def user_day_plays(): await user_plays_rank(1)
@@ -34,6 +35,8 @@ async def user_day_plays(): await user_plays_rank(1)
 async def user_week_plays(): await user_plays_rank(7)
 
 async def user_total_plays(): await user_plays_rank(65535)
+
+async def user_total_coins(): await user_coins_rank(10)
 
 
 # 写优雅点
@@ -44,6 +47,7 @@ action_dict = {
     "dayplayrank": user_day_plays,
     "weekplayrank": user_week_plays,
     "totalplayrank": user_total_plays,
+    "totalcoinsrank": user_total_coins,
     # "check_ex": check_expired,
     # "low_activity": check_low_activity,
     "backup_db": auto_backup_db
@@ -56,6 +60,7 @@ args_dict = {
     "dayplayrank": {'hour': 21, 'minute': 30, 'id': 'user_day_plays'},
     "weekplayrank": {'day_of_week': "sun", 'hour': 23, 'minute': 0, 'id': 'user_week_plays'},
     "totalplayrank": {'hour': 22, 'minute': 00, 'id': 'user_total_plays'},
+    "totalcoinsrank": {'hour': 22, 'minute': 30, 'id': 'user_total_coins'},
     # "check_ex": {'hour': 1, 'minute': 30, 'id': 'check_expired'},
     # "low_activity": {'hour': 8, 'minute': 30, 'id': 'check_low_activity'},
     "backup_db": {'hour': 2, 'minute': 30, 'id': 'backup_db'}
@@ -151,6 +156,19 @@ async def shou_dong_uplayrank(_, msg):
     except Exception as e:
         try:
             await user_plays_rank(65535)
+        except Exception as e:
+            pass
+
+
+@bot.on_message(filters.command('coinranks', prefixes) & admins_on_filter)
+async def shou_dong_coinrank(_, msg):
+    await deleteMessage(msg)
+    try:
+        nums = int(msg.command[1])
+        await user_coins_rank(nums)
+    except Exception as e:
+        try:
+            await user_coins_rank(10)
         except Exception as e:
             pass
             

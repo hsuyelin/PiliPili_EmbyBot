@@ -1,9 +1,10 @@
 from datetime import datetime, timezone, timedelta
 
+from bot import admins, coin_admins
 from bot import bot, bot_photo, group, sakura_b, LOGGER, ranks, _open
 from bot.func_helper.emby import emby
 from bot.func_helper.utils import convert_to_beijing_time, convert_s
-from bot.sql_helper.sql_emby import sql_get_emby, sql_update_embys, Emby, sql_update_emby
+from bot.sql_helper.sql_emby import sql_get_emby, sql_update_embys, Emby, sql_update_emby, sql_get_iv_ranks
 
 now = datetime.now(timezone(timedelta(hours=8)))
 
@@ -95,3 +96,23 @@ class Uplaysinfo:
         chunks = [msg[i:i + n] for i in range(0, len(msg), n)]
         for c in chunks:
             await bot.send_message(chat_id=group[0], text=c + f'**{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}**')
+
+
+    @staticmethod
+    async def user_coins_rank(num=10):
+        unique_admins = []
+        try:
+            unique_admins_sets = set(admins) | set(coin_admins)
+            unique_admins = list(unique_admins_sets)
+        except Exception as e:
+            pass
+
+        count = num + len(unique_admins)
+        records = sql_get_iv_ranks(count, unique_admins)
+        txt = f'**▎{ranks["logo"]} {sakura_b}排行榜 TOP{count}**\n\n'
+        n = 1
+        for record in records:
+            txt += f"TOP{n} 用户: tg://user?id={record.tg}\n{sakura_b}: {record.iv}\n"
+            n += 1
+        txt += f'\n#{sakura_b}榜 {datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")}'
+        await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=txt)

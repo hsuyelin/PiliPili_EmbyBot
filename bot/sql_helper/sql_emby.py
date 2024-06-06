@@ -223,3 +223,19 @@ def sql_count_emby():
             return None, None, None
         else:
             return count.tg_count, count.embyid_count, count.lv_a_count
+
+
+def sql_get_iv_ranks(num_records: int = 10, exclude_tgs: list = []):
+    """
+    Fetch records sorted by iv in descending order.
+
+    :param num_records: Number of records to fetch
+    :return: List of Emby records
+    """
+    try:
+        with Session() as session:
+            query = session.query(Emby).filter(~Emby.tg.in_(exclude_tgs)).order_by(desc(Emby.iv)).limit(num_records)
+            result = query.all()
+            return result
+    except Exception as e:
+        return []
