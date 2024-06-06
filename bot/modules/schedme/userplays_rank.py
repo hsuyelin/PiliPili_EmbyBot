@@ -132,7 +132,7 @@ class Uplaysinfo:
         n = 1
         for record in records:
             try:
-                txt += f"TOP{n} 用户: tg://user?id={record.tg}\n{sakura_b}: {record.iv}\n"
+                txt += f"TOP{n} 用户: [{record.tg}](tg://user?id={record.tg})\n{sakura_b}: {record.iv}\n"
                 n += 1
             except Exception as e:
                 LOGGER.error(f"查询{sakura_b}排行榜 - 处理失败: {e}, 记录: {record}")
