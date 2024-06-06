@@ -79,21 +79,29 @@ async def user_in_checkin(_, call):
                 f'🎯 **签到说明**：\n\n' +
                 f'在120s内计算出 {expression} = ? \n' +
                 f'结果正确你将会随机获得6 ~ 18 {sakura_b}(概率获得88 {sakura_b})\n'+
-                f'结果错误你可以返回主界面重新签到\n\n')
+                f'结果错误你将会随机扣除6 ~ 18 {sakura_b}(概率扣除88 {sakura_b}), 请谨慎回答\n\n')
             text = await callListen(call, timer=120, buttons=checkin_button)
             if isinstance(text, bool):
+                iv = e.iv - int(reward)
+                sql_update_emby(Emby.tg == call.from_user.id, iv=iv, ch=now)
                 await callAnswer(call, '❌ 发生未知错误，请联系管理员！', True)
                 return
 
+            answer_result = True
             if text.text == str(result):
                 iv = e.iv + int(reward)
             else:
-                await callAnswer(call, '💢 哥们，你就是九年义务教育的漏网之鱼吧！', True)
-                return
+                answer_result = False
+                iv = e.iv - int(reward)
                 
             sql_update_emby(Emby.tg == call.from_user.id, iv=iv, ch=now)
-            message = f'🎉 **签到成功** | {reward} {sakura_b}\n💴 **当前状态** | {iv} {sakura_b}\n⏳ **签到日期** | {now_i}'
-            if is_children_day():
+            message = ""
+            if answer_result:
+                message = f'🎉 **签到完成** | 本次签到你获得了 {reward} {sakura_b}\n💴 **当前状态** | {iv} {sakura_b}\n⏳ **签到日期** | {now_i}'
+            else:
+                message = f'🎉 **签到完成** | 本次签到回答错误，扣除 {reward} {sakura_b}\n💴 **当前状态** | {iv} {sakura_b}\n⏳ **签到日期** | {now_i}'
+
+            if is_children_day() and answer_result:
                 message += f'\n🦖 热忱之心，不可磨灭，希望你永远拥有一颗纯洁质朴的心'
             await asyncio.gather(call.message.delete(), sendMessage(call, text=message))
         else:
