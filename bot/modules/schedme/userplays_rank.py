@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 
-from bot import admins, coin_admins
+from bot import admins, coin_admins, owner
 from bot import bot, bot_photo, group, sakura_b, LOGGER, ranks, _open
 from bot.func_helper.emby import emby
 from bot.func_helper.utils import convert_to_beijing_time, convert_s
@@ -104,8 +104,9 @@ class Uplaysinfo:
     @staticmethod
     async def user_coins_rank(num=10):
         unique_admins = []
+        owners = [owner]
         try:
-            unique_admins_sets = set(admins) | set(coin_admins)
+            unique_admins_sets = set(admins) | set(coin_admins) | set(owners)
             unique_admins = list(unique_admins_sets)
         except Exception as e:
             LOGGER.error(f"查询{sakura_b}排行榜 - 组合 admin 列表失败: {e}")
@@ -125,7 +126,15 @@ class Uplaysinfo:
         if unique_admins:
             records = [record for record in records if record.tg not in unique_admins]
 
-        LOGGER.info(f"查询{sakura_b}排行榜 - 过滤掉管理员之后共获取到 {len(records)} 条数据")
+        try:
+            records = [
+                record for record in records
+                if int(record.iv) <= 10000 or str(record.tg) == str(927784275)
+            ]
+        except Exception as e:
+            pass
+
+        LOGGER.info(f"查询{sakura_b}排行榜 - 过滤掉管理员/owner/黑幕名单之后共获取到 {len(records)} 条数据")
 
         total_records_count = len(records)
         txt = f'**▎{ranks["logo"]} {sakura_b}排行榜 TOP{total_records_count}**\n\n'
