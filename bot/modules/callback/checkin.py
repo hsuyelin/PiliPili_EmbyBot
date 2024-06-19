@@ -65,7 +65,7 @@ async def user_in_checkin(_, call):
         if e.ch is None or e.ch.strftime("%Y-%m-%d") < now_i:
             hit, expression_str, result_value = simulate_event()
             expression_str = expression_str.replace('/', '÷')
-            is_kfc_crazy_thursday = is_kfc_crazy_thursday()
+            is_kfc_day = is_kfc_crazy_thursday()
             reward = random.randint(6, 18)
 
             await editMessage(call, 
@@ -87,7 +87,7 @@ async def user_in_checkin(_, call):
             randomEggshellValue = random.randint(1, 6)
             answer_result = True
             if textValue == str(result_value):
-                reward = 88 if hit or is_kfc_crazy_thursday else reward
+                reward = 88 if hit or is_kfc_day else reward
                 reward = reward + randomEggshellValue if isHitEggshell else reward
                 iv = e.iv + int(reward)
             else:
@@ -99,7 +99,7 @@ async def user_in_checkin(_, call):
             if answer_result:
                 message = f'🎉 **签到完成** | 本次签到你获得了 {reward} {sakura_b}\n💴 **当前{sakura_b}余额** | {iv}\n⏳ **签到日期** | {now_i}'
 
-                if is_kfc_crazy_thursday:
+                if is_kfc_day:
                     message = f'🎉 **签到完成** | 本次签到你获得了 {reward} {sakura_b}\n💴 **当前{sakura_b}余额** | {iv}\n⏳ **签到日期** | {now_i} (疯狂星期四)'
 
                 if isHitEggshell:
