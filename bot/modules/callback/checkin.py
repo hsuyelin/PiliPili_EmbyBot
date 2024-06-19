@@ -53,7 +53,7 @@ def simulate_event():
 
 
 def is_kfc_crazy_thursday():
-    return datetime.datetime.today().weekday() == 3
+    return datetime.today().weekday() == 3
 
 
 @bot.on_callback_query(filters.regex('checkin') & user_in_group_on_filter)
