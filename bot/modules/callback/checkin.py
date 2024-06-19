@@ -11,56 +11,49 @@ from bot.func_helper.msg_utils import callAnswer, editMessage, callListen, sendM
 from bot.sql_helper.sql_emby import sql_get_emby, sql_update_emby, Emby
 
 
-def generate_random_expression():
-    if random.random() < 0.025:
-        while True:
-            num1 = random.randint(1, 99)
-            op = random.choice(['+', '-', '*', '/'])
-            if op == '+':
-                num2 = 88 - num1
-            elif op == '-':
-                num2 = num1 - 88
-            elif op == '*':
-                if num1 == 0 or 88 % num1 != 0:
-                    continue
-                num2 = 88 // num1
-            elif op == '/':
-                if num1 == 0 or 88 * num1 > 99:
-                    continue
-                num2 = num1 * 88
-                
-            if 1 <= num2 <= 100:
-                expression = f"{num1} {op} {num2}"
-                return (expression, 88)
-            
-    while True:
-        num1 = random.randint(1, 99)
-        num2 = random.randint(1, 99)
-        op = random.choice(['+', '-', '*', '/'])
-        
-        if op == '/':
-            if num2 == 0:
-                continue
-            result = num1 / num2
-            if result != int(result):
-                continue
-            result = int(result)
-        else:
-            if op == '+':
-                result = num1 + num2
-            elif op == '-':
-                result = num1 - num2
-            elif op == '*':
-                result = num1 * num2
-                
-        if 0 < result <= 100:
-            expression = f"{num1} {op} {num2}"
-            return (expression, result)
+def generate_expression():
+    operators = ['+', '-', '*', '/']
+    op = random.choice(operators)
+    
+    if op == '+':
+        a = random.randint(0, 100)
+        b = random.randint(0, 100 - a)
+        expression_str = f"{a} + {b} ="
+        result = (a + b, expression_str)
+    elif op == '-':
+        a = random.randint(0, 100)
+        b = random.randint(0, a)
+        expression_str = f"{a} - {b} ="
+        result = (a - b, expression_str)
+    elif op == '*':
+        a = random.randint(0, 10)
+        b = random.randint(0, 10)
+        expression_str = f"{a} * {b} ="
+        result = (a * b, expression_str)
+    elif op == '/':
+        b = random.randint(1, 10)
+        a = random.randint(0, 100)
+        a = a - (a % b)
+        result = (a // b, f"{a} / {b} =")
+    
+    return result
 
 
-def is_children_day():
-    today = datetime.today()
-    return today.month == 6 and today.day == 1
+def simulate_event():
+    rand_num = random.randint(1, 40)
+    
+    if rand_num == 1:
+        hit = True
+    else:
+        hit = False
+    
+    result_value, expression_str = generate_expression()
+    
+    return hit, expression_str, result_value
+
+
+def is_kfc_crazy_thursday():
+    return datetime.datetime.today().weekday() == 3
 
 
 @bot.on_callback_query(filters.regex('checkin') & user_in_group_on_filter)
@@ -70,10 +63,10 @@ async def user_in_checkin(_, call):
     if _open["checkin"]:
         e = sql_get_emby(tg=call.from_user.id)
         if e.ch is None or e.ch.strftime("%Y-%m-%d") < now_i:
-            expression, result = generate_random_expression()
-            expression = expression.replace('/', '÷')
-            reward = 88 if result == 88 else random.randint(6, 18)
-            reward = 61 if is_children_day() else reward
+            hit, expression_str, result_value = simulate_event()
+            expression_str = expression_str.replace('/', '÷')
+            is_kfc_crazy_thursday = is_kfc_crazy_thursday()
+            reward = random.randint(6, 18)
 
             await editMessage(call, 
                 f'🎯 **签到说明**：\n\n' +
@@ -87,8 +80,15 @@ async def user_in_checkin(_, call):
                 await callAnswer(call, '❌ 发生未知错误，请联系管理员！', True)
                 return
 
+            texts = text.text.split('|')
+            textValue = texts[0]
+            eggshellValue = texts[1] if len(texts) >= 2 else ""
+            isHitEggshell = eggshellValue and eggshellValue == "大哥好帅"
+            randomEggshellValue = random.randint(1, 6)
             answer_result = True
-            if text.text == str(result):
+            if textValue == str(result_value):
+                reward = 88 if hit or is_kfc_crazy_thursday else reward
+                reward = reward + randomEggshellValue if isHitEggshell else reward
                 iv = e.iv + int(reward)
             else:
                 answer_result = False
@@ -97,12 +97,11 @@ async def user_in_checkin(_, call):
             sql_update_emby(Emby.tg == call.from_user.id, iv=iv, ch=now)
             message = ""
             if answer_result:
-                message = f'🎉 **签到完成** | 本次签到你获得了 {reward} {sakura_b}\n💴 **当前状态** | {iv} {sakura_b}\n⏳ **签到日期** | {now_i}'
+                message = f'🎉 **签到完成** | 本次签到你获得了 {reward} {sakura_b}\n💴 **当前{sakura_b}余额** | {iv}\n⏳ **签到日期** | {now_i}'
+                if isHitEggshell:
+                    message += f"\n\nPS: 由于你诚实的性格，额外奖励你 {randomEggshellValue} {sakura_b}"
             else:
-                message = f'🎉 **签到完成** | 本次签到回答错误，扣除 {reward} {sakura_b}\n💴 **当前状态** | {iv} {sakura_b}\n⏳ **签到日期** | {now_i}'
-
-            if is_children_day() and answer_result:
-                message += f'\n🦖 热忱之心，不可磨灭，希望你永远拥有一颗纯洁质朴的心'
+                message = f'🎉 **签到完成** | 本次签到回答错误，扣除 {reward} {sakura_b}\n💴 **当前{sakura_b}余额** | {iv}\n⏳ **签到日期** | {now_i}'
             await asyncio.gather(call.message.delete(), sendMessage(call, text=message))
         else:
             await callAnswer(call, '⭕ 您今天已经签到过了！签到是无聊的活动哦。', True)
