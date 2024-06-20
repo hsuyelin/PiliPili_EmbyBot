@@ -608,7 +608,8 @@ async def do_store_whitelist(_, call):
     if _open["whitelist"]:
         e = sql_get_emby(tg=call.from_user.id)
         if e is None:
-            return
+            LOGGER.info(f'【兑换白名单】- {call.from_user.id} 数据库中获取条目失败')
+            return callAnswer(call, '❌ 仅持有账户可兑换此选项', True)
         if e.iv < 9999 or e.lv == 'a':
             return await callAnswer(call,
                                     f'🏪 兑换规则：\n当前兑换白名单需要 9999 {sakura_b}，已有白名单无法再次消费。勉励',
@@ -627,7 +628,8 @@ async def do_store_whitelist(_, call):
 async def do_store_invite(_, call):
     if _open["invite"] == True:
         e = sql_get_emby(tg=call.from_user.id)
-        if not e or not e.embyid:
+        if not e:
+            LOGGER.info(f'【兑换邀请码】- {call.from_user.id} 数据库中获取条目失败')
             return callAnswer(call, '❌ 仅持有账户可兑换此选项', True)
         if e.iv < _open["invite_cost"]:
             return await callAnswer(call,
