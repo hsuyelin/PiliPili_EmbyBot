@@ -86,15 +86,19 @@ async def user_in_checkin(_, call):
             isHitEggshell = eggshellValue and eggshellValue == "大哥好帅"
             randomEggshellValue = random.randint(1, 6)
             answer_result = True
-            if textValue == str(result_value):
-                reward = 88 if hit else reward
-                reward = random.randint(18, 68) if is_kfc_day and reward < 88 else reward
-                reward = reward + randomEggshellValue if isHitEggshell else reward
-                iv = e.iv + int(reward)
-            else:
+            try:
+                if int(textValue) == int(result_value):
+                    reward = 88 if hit else reward
+                    reward = random.randint(18, 68) if is_kfc_day and reward < 88 else reward
+                    reward = reward + randomEggshellValue if isHitEggshell else reward
+                    iv = e.iv + int(reward)
+                else:
+                    answer_result = False
+                    iv = e.iv - int(reward)
+            except Exception as e:
                 answer_result = False
                 iv = e.iv - int(reward)
-                
+
             sql_update_emby(Emby.tg == call.from_user.id, iv=iv, ch=now)
             message = ""
             if answer_result:
