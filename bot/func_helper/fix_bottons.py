@@ -78,9 +78,15 @@ def members_ikb(emby=False) -> InlineKeyboardMarkup:
             return ikb([[('🗑️ 删除账号', 'delme'), ('🎬 显示/隐藏', 'embyblock')],
                         [('⭕ 重置密码', 'reset'), ('♻️ 主界面', 'back_start')]])
     else:
-        return ikb(
-            [[('👑 创建账户', 'create')], [('⭕ 换绑TG', 'changetg'), ('🔍 绑定TG', 'bindtg')],
-             [('♻️ 主界面', 'back_start')]])
+        if user_buy["stat"] == True:
+            return ikb(
+                [[('👑 创建账户', 'create'), ('🏪 兑换商店', 'storeall')],
+                 [('⭕ 换绑TG', 'changetg'), ('🔍 绑定TG', 'bindtg')],
+                 [('♻️ 主界面', 'back_start')]])
+        else:
+            return ikb(
+                [[('👑 创建账户', 'create')], [('⭕ 换绑TG', 'changetg'), ('🔍 绑定TG', 'bindtg')],
+                 [('♻️ 主界面', 'back_start')]])
 
 
 back_start_ikb = ikb([[('💫 回到首页', 'back_start')]])
