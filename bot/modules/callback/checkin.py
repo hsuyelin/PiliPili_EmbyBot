@@ -95,7 +95,7 @@ async def user_in_checkin(_, call):
                 else:
                     answer_result = False
                     iv = e.iv - int(reward)
-            except Exception as e:
+            except Exception as exception:
                 answer_result = False
                 iv = e.iv - int(reward)
 

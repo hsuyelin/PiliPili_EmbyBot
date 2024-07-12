@@ -45,50 +45,70 @@ async def user_in_group_filter(client, update):
     :param update:
     :return:
     """
-    uid = update.from_user or update.sender_chat
-    uid = uid.id
-    for i in group:
-        try:
-            u = await client.get_chat_member(chat_id=int(i), user_id=uid)
-            if u.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER, ChatMemberStatus.OWNER]:
-                return True
-        except BadRequest as e:
-            if e.ID == 'USER_NOT_PARTICIPANT':
-                return False
-            elif e.ID == 'CHAT_ADMIN_REQUIRED':
-                LOGGER.error(f"bot不能在 {i} 中工作，请检查bot是否在群组及其权限设置")
-                return False
+    try:
+        uid = update.from_user or update.sender_chat
+        uid = uid.id
+        for i in group:
+            try:
+                u = await client.get_chat_member(chat_id=int(i), user_id=uid)
+                if u.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER, ChatMemberStatus.OWNER]:
+                    return True
+            except BadRequest as e:
+                if e.ID == 'USER_NOT_PARTICIPANT':
+                    LOGGER.info(f"{uid}不在{group}中，USER_NOT_PARTICIPANT")
+                    return False
+                elif e.ID == 'CHAT_ADMIN_REQUIRED':
+                    LOGGER.error(f"bot不能在 {i} 中工作，请检查bot是否在群组及其权限设置")
+                    return False
+                else:
+                    LOGGER.info(f"查询{uid}是否在{group}中，发生错误: {str(e)}, continue")
+                    continue
             else:
-                return False
-        else:
-            continue
-    return False
+                LOGGER.info(f"{uid}不在{group}中，continue")
+                continue
+
+        LOGGER.info(f"已确定{uid}不在{group}中")
+        return False
+    except Exception as e:
+        LOGGER.error(f"过滤在授权组中的人员发生错误: {str(e)}")
+        return False
 
 
 async def user_in_group_on_filter(filt, client, update):
     """
     过滤在授权组中的人员
+    :param filt:
     :param client:
     :param update:
     :return:
     """
-    uid = update.from_user or update.sender_chat
-    uid = uid.id
-    for i in group:
-        try:
-            u = await client.get_chat_member(chat_id=int(i), user_id=uid)
-            if u.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER,
-                            ChatMemberStatus.OWNER]:  # 移除了 'ChatMemberStatus.RESTRICTED' 防止有人进群直接注册不验证
-                return True
-        except BadRequest as e:
-            if e.ID == 'USER_NOT_PARTICIPANT':
-                return False
-            elif e.ID == 'CHAT_ADMIN_REQUIRED':
-                LOGGER.error(f"bot不能在 {i} 中工作，请检查bot是否在群组及其权限设置")
-                return False
+    try:
+        uid = update.from_user or update.sender_chat
+        uid = uid.id
+        for i in group:
+            try:
+                u = await client.get_chat_member(chat_id=int(i), user_id=uid)
+                if u.status in [ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.MEMBER, ChatMemberStatus.OWNER]:
+                    return True
+            except BadRequest as e:
+                if e.ID == 'USER_NOT_PARTICIPANT':
+                    LOGGER.info(f"{uid}不在{group}中，USER_NOT_PARTICIPANT")
+                    return False
+                elif e.ID == 'CHAT_ADMIN_REQUIRED':
+                    LOGGER.error(f"bot不能在 {i} 中工作，请检查bot是否在群组及其权限设置")
+                    return False
+                else:
+                    LOGGER.info(f"查询{uid}是否在{group}中，发生错误: {str(e)}, continue")
+                    continue
             else:
-                return False
-    return False
+                LOGGER.info(f"{uid}不在{group}中，continue")
+                continue
+
+        LOGGER.info(f"已确定{uid}不在{group}中")
+        return False
+    except Exception as e:
+        LOGGER.error(f"过滤在授权组中的人员发生错误: {str(e)}")
+        return False
 
 
 async def judge_uid_ingroup(client, uid):
