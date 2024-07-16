@@ -22,9 +22,9 @@ class Uplaysinfo:
 
         LOGGER.info(f'【userplayrank】： 查询到用户排行数据个数 {len(results)} | 指定天数 {days}')
 
-        txt = f'**▎{ranks["logo"]} {days} 天看片榜**\n\n'
+        txt = f'**▎{ranks["logo"]} {days} 天观影榜**\n\n'
         if days == 65535:
-            txt = f'**▎{ranks["logo"]}总看片榜**\n\n'
+            txt = f'**▎{ranks["logo"]}观影名人堂**\n\n'
         n = 1
         ls = []
         for r in results:
@@ -37,7 +37,10 @@ class Uplaysinfo:
             ad_time = await convert_s(int(r[1]))
             txt += f'TOP{n}  用户: {emby_name}\n时长: {ad_time}\n'
             n += 1
-        txt += f'\n#看片榜 {datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")}'
+        if days != 65535:
+            txt += f'\n#观影榜 {datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")}'
+        else:
+            txt += f'\n#观影名人堂 {datetime.now(timezone(timedelta(hours=8))).strftime("%Y-%m-%d")}'
         if uplays and _open["uplays"]:
             send = await bot.send_photo(chat_id=group[0], photo=bot_photo, caption=txt)
             if sql_update_embys(some_list=ls, method='iv'):
