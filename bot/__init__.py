@@ -126,6 +126,10 @@ emby_api = config["emby_api"]
 emby_param = (('api_key', emby_api),)
 emby_url = config["emby_url"]
 emby_line = config["emby_line"]
+if "extra_emby_line" in config:
+    extra_emby_line = config.get('extra_emby_line', '')
+else:
+    extra_emby_line = ''
 emby_block = config["emby_block"]
 try:
     extra_emby_libs = config["extra_emby_libs"]

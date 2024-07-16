@@ -4,7 +4,7 @@
 """
 from datetime import datetime, timezone, timedelta
 from pyrogram import filters
-from bot import bot, emby_line
+from bot import bot, emby_line, extra_emby_line
 from bot.func_helper.emby import emby
 from bot.func_helper.filters import user_in_group_on_filter
 from bot.sql_helper.sql_emby import sql_get_emby
@@ -34,6 +34,11 @@ async def server(_, call):
 
     pwd = '空' if not data.pwd else data.pwd
     line = f'{emby_line}' if data.lv in ['a', 'b'] else ' - **无权查看**'
+    try:
+        if int(data.iv) > 1145 and extra_emby_line and data.lv in ['a', 'b']:
+            line = f'{extra_emby_line}'
+    except:
+        pass
     try:
         online = emby.get_current_playing_count()
     except:

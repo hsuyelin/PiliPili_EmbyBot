@@ -44,6 +44,7 @@
     "emby_api": "21bc77f3468746a7999993aa7f877b74",
     "emby_url": "http://202.61.999.218:8096",
     "emby_line": "https://emby.xxxx.top:443",
+    "extra_emby_line": "https://emby.xxxx.top:443",
     "emby_block": [
         "NSFW"
     ],
